@@ -1,42 +1,31 @@
 public class Receiver {
     public static void main(String[] args) {
-        System.out.println("args length test: " + args.length);
+        System.out.println("///args length test: " + args.length);
         /*
-         * possible command line arguments(args.length == 3 or 1) Receiver -f text.txt
-         * port Receiver port
+         * Receiver -f data-received.txt 64341 [OR] Receiver 64341
          */
 
         // If command line argument does not contain a port
-        if (args.length < 2) {
-            System.out.println("No Port Specified, Exiting Program");
+        if (args.length == 0 || args.length == 2) {
+            System.out.println("No Port Specified or incorrect commandline input, Exiting Program");
             System.exit(0);
-        }
-        // If -f command line argument present and host and port present
-        else if (args[1] == "-f" && args.length == 3) {
-            System.out.println("Data file selected for transmission: " + args[2]);
-
-        } else if (args.length == 2) {
-            System.out.println("Message mode, no file specified");
-            String message = messageMode(args[2]);
+        } else if (args.length == 1) {
+            System.out.println("No data file selected for receiving data, outputting to terminal");
 
         }
+        // If -f command line argument present and port is present
+        else if (args[1] == "-f") {
+            System.out.println("Data file selected for receiving data: " + args[2]);
 
-        // SOCKET STUFF
+        }
+        // TODO: SOCKET STUFF
     }
 
     /*
-     * readFile: reads a textfile into an object
+     * writeFile: writes to textfile
      */
-    static void readFile(String fileName) {
-        //
+    static void writeFile(String fileName) {
+        // TODO: writefile
     }
 
-    static String messageMode(String port) {
-        String input = "";
-        System.out.println("Enter your message");
-        // TODO: add read here
-
-        return input;
-
-    }
 }
