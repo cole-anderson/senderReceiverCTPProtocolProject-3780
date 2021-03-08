@@ -8,7 +8,7 @@ public class Receiver {
         if (args[0].equals("-f") && args.length == 2) {
             System.out.println("Data file selected for receiving data: " + args[1]);
         }
-        // (2)(EXAMPLE INPUT) Receiver 6431
+        // (2)(EXAMPLE INPUT) Receiver 64341
         else if (args.length == 1) {
             System.out.println("No data file selected for receiving data. Outputting to terminal");
         }

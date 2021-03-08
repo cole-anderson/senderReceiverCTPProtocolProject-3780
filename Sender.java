@@ -4,21 +4,20 @@ public class Sender {
          * sender -f data.txt 127.0.0.1 64341 [-f, file, ipaddress, port] ........
          * sender 127.0.0.1 64341 [ipaddress,port]
          */
+
         // If command line argument does not contain a host and port(exit)
         if (args.length <= 1) {
             System.out.println("No Port Specified, Exiting Program");
             System.exit(0);
         }
-        // If -f command line argument present and host and port present
-        else if (args[1].equals("-f") && args.length == 3) {
-            System.out.println("Data file selected for transmission: " + args[2]);
+        // Sender -f data.txt 127.0.0.1 63431
+        else if (args[0].equals("-f") && args.length == 4) {
+            System.out.println("Data file selected for transmission: " + args[1]);
         }
-        // If only host and port is present
+        // Sender 127.0.0.1 64341
         else if (args.length == 2) {
             System.out.println("Message mode, no file specified");
-            // String message = messageMode();
-            // args[2] = IP ADDRESS
-            // args[3] = PORT
+            String message = messageMode();
 
         }
         // TODO: SOCKET STUFF
