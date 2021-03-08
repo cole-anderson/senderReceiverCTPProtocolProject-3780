@@ -1,4 +1,9 @@
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 public class Sender {
+
     public static void main(String[] args) {
         /*
          * sender -f data.txt 127.0.0.1 64341 [-f, file, ipaddress, port] ........
@@ -20,6 +25,12 @@ public class Sender {
             String message = messageMode();
 
         }
+        // Initialize values
+        int port = Integer.parseInt(args[args.length - 1]);
+        String address = args[args.length - 2];
+        System.out.println("fuck");
+        connect(address, port);
+
         // TODO: SOCKET STUFF
     }
 
@@ -36,6 +47,20 @@ public class Sender {
         // TODO:
 
         return input;
+
+    }
+
+    public static void connect(String address, int port) {
+        System.out.println("Attempting Connection on port " + port + " at address " + address);
+        try {
+            Socket socket = new Socket(address, port);
+            System.out.println("Socket Connect on port" + port);
+        } catch (UnknownHostException un) {
+            System.out.println(un);
+
+        } catch (IOException io) {
+            System.out.println(io);
+        }
 
     }
 }
