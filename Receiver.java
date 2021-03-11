@@ -1,7 +1,8 @@
 
-//Client Side
+//Server
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -11,7 +12,7 @@ public class Receiver {
          * Receiver -f data-received.txt 64341 [OR] Receiver 64341
          */
         String file = "";
-        int port;
+        int port = 0;
 
         // (1)(EXAMPLE INPUT) Receiver -f data_received.txt 6431
         if (args[0].equals("-f") && args.length == 2) {
@@ -22,7 +23,7 @@ public class Receiver {
         // (2)(EXAMPLE INPUT) Receiver 64341
         else if (args.length == 1) {
             System.out.println("No data file selected for receiving data. Outputting to terminal");
-            port = Integer.parseInt(args[1]);
+            port = Integer.parseInt(args[0]);
         }
         // (3)(SHOULD ACCOUNT FOR ALL INVALID INPUT)
         else {
@@ -34,6 +35,7 @@ public class Receiver {
                 System.exit(0);
             }
         }
+        serverSide(port, file);
 
     }// ENDMAIN
 
@@ -44,22 +46,17 @@ public class Receiver {
         // TODO: writefile
     }
 
-    public static void clientConnect(String address, int port, String fileName) {
+    public static void serverSide(int port, String fileName) {
         try {
-            Socket clientSocket = new Socket(address, port);
-            DataOutputStream toWrite = new DataOutputStream(clientSocket.getOutputStream());
-            if (fileName != "") {
-                writeFile(fileName, toWrite);
-            } else
-                System.out.println(toWrite);
-            // Cleanup
-            clientSocket.close();
-            toWrite.close();
-
-        } catch (UnknownHostException uh) {
-            System.out.println(uh);
+            Socket acceptSocket = null;
+            ServerSocket serverSocket = new ServerSocket(port);
+            acceptSocket = serverSocket.accept();
+            System.out.println("//Connection Successful");
+            acceptSocket.close();
+            serverSocket.close();
         } catch (IOException io) {
             System.out.println(io);
         }
+
     }
 }

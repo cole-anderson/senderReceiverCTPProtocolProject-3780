@@ -1,5 +1,6 @@
 
-//Server Side
+//Client Side
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -36,8 +37,8 @@ public class Sender {
             String message = messageMode();
 
         }
-        // Initialize values
-        serverConnect(address, port, file);
+        // Socket Connecting
+        clientSide(address, port, file);
 
         // TODO: SOCKET STUFF
     }
@@ -45,7 +46,7 @@ public class Sender {
     /*
      * readFile: reads a textfile into an object
      */
-    static void readFile(String fileName) {
+    static void readFile(String fileName, DataOutputStream toRead) {
         // TODO: readfile
     }
 
@@ -59,8 +60,22 @@ public class Sender {
 
     }
 
-    public static void serverConnect(String address, int port, String file) {
-        System.out.println("Attempting Connection on port " + port + " at address " + address);
+    public static void clientSide(String address, int port, String fileName) {
+        try {
+            Socket clientSocket = new Socket(address, port);
+            DataOutputStream toRead = new DataOutputStream(clientSocket.getOutputStream());
+            if (fileName != "") {
+                readFile(fileName, toRead);
+            } else
+                System.out.println(toRead);
+            // Cleanup
+            clientSocket.close();
+            toRead.close();
 
+        } catch (UnknownHostException uh) {
+            System.out.println(uh);
+        } catch (IOException io) {
+            System.out.println(io);
+        }
     }
 }
