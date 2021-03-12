@@ -1,7 +1,9 @@
 
 //Server
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -50,8 +52,17 @@ public class Receiver {
         try {
             Socket acceptSocket = null;
             ServerSocket serverSocket = new ServerSocket(port);
+            System.out.println("Receiver Server Active...Waiting For Client To Send");
             acceptSocket = serverSocket.accept();
             System.out.println("//Connection Successful");
+
+            InputStream receivedData = acceptSocket.getInputStream();
+            DataInputStream dataIn = new DataInputStream(receivedData);
+
+            String trans = dataIn.readUTF();
+
+            System.out.println(trans);
+            // Cleanup
             acceptSocket.close();
             serverSocket.close();
         } catch (IOException io) {

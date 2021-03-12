@@ -2,6 +2,7 @@
 //Client Side
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
@@ -16,6 +17,7 @@ public class Sender {
         String file = "";
         int port = 0;
         String address = "";
+        String message = "";
 
         // If command line argument does not contain a host and port(exit)
         if (args.length <= 1) {
@@ -34,11 +36,11 @@ public class Sender {
             System.out.println("Message mode, no file specified");
             address = args[0];
             port = Integer.parseInt(args[1]);
-            String message = messageMode();
+            message = messageMode();
 
         }
         // Socket Connecting
-        clientSide(address, port, file);
+        clientSide(address, port, file, message);
 
         // TODO: SOCKET STUFF
     }
@@ -46,13 +48,13 @@ public class Sender {
     /*
      * readFile: reads a textfile into an object
      */
-    static void readFile(String fileName, DataOutputStream toRead) {
+    static void readFile(String fileName) {
         // TODO: readfile
     }
 
     static String messageMode() {
         String input = "";
-        System.out.println("Enter your message");
+        System.out.println("Enter your message");// DEL: DELETE THIS LINE
         Scanner inline = new Scanner(System.in);
         input = inline.nextLine();
         inline.close();
@@ -60,17 +62,18 @@ public class Sender {
 
     }
 
-    public static void clientSide(String address, int port, String fileName) {
+    public static void clientSide(String address, int port, String fileName, String message) {
         try {
             Socket clientSocket = new Socket(address, port);
-            DataOutputStream toRead = new DataOutputStream(clientSocket.getOutputStream());
-            if (fileName != "") {
-                readFile(fileName, toRead);
-            } else
-                System.out.println(toRead);
+
+            OutputStream output = clientSocket.getOutputStream();
+            DataOutputStream transmission = new DataOutputStream(output);
+
+            transmission.writeUTF(message);
+            transmission.flush();
+            transmission.close();
             // Cleanup
             clientSocket.close();
-            toRead.close();
 
         } catch (UnknownHostException uh) {
             System.out.println(uh);
