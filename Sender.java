@@ -1,11 +1,18 @@
-
-//Client Side
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+// import java.net.DatagramPacket;
+// import java.net.DatagramSocket;
+// import java.net.InetAddress;
 import java.net.Socket;
+// import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+
+/*
+    CPSC 3780 Cole Anderson and Liam King
+    Checkpoint1 (SENDER)
+*/
 
 public class Sender {
 
@@ -41,8 +48,6 @@ public class Sender {
         }
         // Socket Connecting
         clientSide(address, port, file, message);
-
-        // TODO: SOCKET STUFF
     }
 
     /*
@@ -52,17 +57,26 @@ public class Sender {
         // TODO: readfile
     }
 
+    /*
+     * Allows for non prompted user input in the case a file is not specified to be
+     * sent
+     */
     static String messageMode() {
         String input = "";
-        System.out.println("Enter your message");// DEL: DELETE THIS LINE
+        // System.out.println("Enter your message");// DEL: DELETE THIS LINE
         Scanner inline = new Scanner(System.in);
         input = inline.nextLine();
         inline.close();
         return input;
-
     }
 
+    /*
+     * Using DatagramSocket and DatagramPackets implements a UDP scenario where in:
+     * //TODO: DESC
+     */
     public static void clientSide(String address, int port, String fileName, String message) {
+
+        // TCP BASED IMPLEMENTATION:
         try {
             Socket clientSocket = new Socket(address, port);
 

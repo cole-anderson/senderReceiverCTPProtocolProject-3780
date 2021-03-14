@@ -1,12 +1,17 @@
-
-//Server
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+// import java.net.DatagramPacket;
+// import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
+// import java.net.SocketException;
+
+/*
+    CPSC 3780 Cole Anderson and Liam King
+    Checkpoint1 (RECEIVER)
+*/
 
 public class Receiver {
     public static void main(String[] args) {
@@ -37,6 +42,7 @@ public class Receiver {
                 System.exit(0);
             }
         }
+        System.out.println("///PORT  " + port);
         serverSide(port, file);
 
     }// ENDMAIN
@@ -49,6 +55,8 @@ public class Receiver {
     }
 
     public static void serverSide(int port, String fileName) {
+
+        // TCP BASED IMPLEMENTATION:
         try {
             Socket acceptSocket = null;
             ServerSocket serverSocket = new ServerSocket(port);
@@ -56,15 +64,20 @@ public class Receiver {
             acceptSocket = serverSocket.accept();
             System.out.println("//Connection Successful");
 
+            // Accept information from sender
             InputStream receivedData = acceptSocket.getInputStream();
             DataInputStream dataIn = new DataInputStream(receivedData);
 
+            // Read into a String
             String trans = dataIn.readUTF();
 
+            // Output to command line transmitted message
             System.out.println(trans);
+
             // Cleanup
             acceptSocket.close();
             serverSocket.close();
+
         } catch (IOException io) {
             System.out.println(io);
         }
