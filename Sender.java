@@ -53,7 +53,6 @@ public class Sender {
      * readFile: reads a textfile into an object
      */
     static String readFile(String fileName) {
-        System.out.println("IN READFILE");
         String read = "";
         // Checks for existing file to read from
         try {
@@ -81,7 +80,6 @@ public class Sender {
         Scanner inline = new Scanner(System.in);
         input = inline.nextLine();
         inline.close();
-        System.out.println("DEBUG2:" + input);
         return input;
     }
 
