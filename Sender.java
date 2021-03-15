@@ -1,11 +1,14 @@
-import java.io.DataOutputStream;
+
+// import java.io.DataOutputStream;
+// import java.io.IOException;
+// import java.io.OutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-// import java.net.DatagramPacket;
-// import java.net.DatagramSocket;
-// import java.net.InetAddress;
+import java.net.DatagramPacket;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
-// import java.net.SocketException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
@@ -70,29 +73,51 @@ public class Sender {
         return input;
     }
 
-    /*
-     * Using DatagramSocket and DatagramPackets implements a UDP scenario where in:
-     * //TODO: DESC
+    /**
+     * clientSide: Sockets
      */
     public static void clientSide(String address, int port, String fileName, String message) {
 
-        // TCP BASED IMPLEMENTATION:
+        DatagramSocket clientSock = null;
+        DatagramPacket sendData = null;
+        InetAddress addressInet = null;
+        byte[] write = new byte[65536];
+        write = message.getBytes();
+
+        // InetAddress
         try {
-            Socket clientSocket = new Socket(address, port);
-
-            OutputStream output = clientSocket.getOutputStream();
-            DataOutputStream transmission = new DataOutputStream(output);
-
-            transmission.writeUTF(message);
-            transmission.flush();
-            transmission.close();
-            // Cleanup
-            clientSocket.close();
-
+            addressInet = InetAddress.getByName(address);
         } catch (UnknownHostException uh) {
-            System.out.println(uh);
-        } catch (IOException io) {
-            System.out.println(io);
+            uh.printStackTrace();
         }
+
+        // Sockets
+        try {
+            clientSock = new DatagramSocket();//
+            sendData = new DatagramPacket(write, write.length, addressInet, port);
+            clientSock.send(sendData);
+
+        } catch (IOException io) {
+            io.printStackTrace();
+        }
+
+        // (old code)
+        // try {
+        // Socket clientSocket = new Socket(address, port);
+
+        // OutputStream output = clientSocket.getOutputStream();
+        // DataOutputStream transmission = new DataOutputStream(output);
+
+        // transmission.writeUTF(message);
+        // transmission.flush();
+        // transmission.close();
+        // // Cleanup
+        // clientSocket.close();
+
+        // } catch (UnknownHostException uh) {
+        // System.out.println(uh);
+        // } catch (IOException io) {
+        // System.out.println(io);
+        // }
     }
 }

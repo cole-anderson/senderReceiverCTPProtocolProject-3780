@@ -1,6 +1,6 @@
 INSTRUCTIONS FOR EXECUTION:
 
-1.  Open TWO terminals in the directory
+1.  Open TWO terminals in the directory(coleliamcheckpoint1)
 
 2.  First compile class files(type the following in the command line)
     javac Receiver.java
