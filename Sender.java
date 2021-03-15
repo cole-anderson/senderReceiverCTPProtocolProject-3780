@@ -1,14 +1,9 @@
-
-// import java.io.DataOutputStream;
-// import java.io.IOException;
-// import java.io.OutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
@@ -40,6 +35,7 @@ public class Sender {
             file = args[1];
             address = args[2];
             port = Integer.parseInt(args[3]);
+            message = readFile(file);
         }
         // Sender 127.0.0.1 64341
         else if (args.length == 2) {
@@ -56,8 +52,23 @@ public class Sender {
     /*
      * readFile: reads a textfile into an object
      */
-    static void readFile(String fileName) {
-        // TODO: readfile
+    static String readFile(String fileName) {
+        System.out.println("IN READFILE");
+        String read = "";
+        // Checks for existing file to read from
+        try {
+            File myFile = new File(fileName);
+            Scanner reader = new Scanner(myFile);
+            while (reader.hasNextLine()) {
+                read = reader.nextLine();
+            }
+            reader.close();
+        } catch (FileNotFoundException fnf) {
+            fnf.printStackTrace();
+            System.out.println("File not found exiting program");
+            System.exit(0);
+        }
+        return read;
     }
 
     /*
@@ -70,6 +81,7 @@ public class Sender {
         Scanner inline = new Scanner(System.in);
         input = inline.nextLine();
         inline.close();
+        System.out.println("DEBUG2:" + input);
         return input;
     }
 
@@ -82,9 +94,9 @@ public class Sender {
         DatagramPacket sendData = null;
         InetAddress addressInet = null;
         byte[] write = new byte[65536];
-        write = message.getBytes();
+        write = message.getBytes();// we can assume input or file is already been read
 
-        // InetAddress
+        // InetAddress conversions
         try {
             addressInet = InetAddress.getByName(address);
         } catch (UnknownHostException uh) {
@@ -93,31 +105,12 @@ public class Sender {
 
         // Sockets
         try {
-            clientSock = new DatagramSocket();//
+            clientSock = new DatagramSocket();// doesnt require port at this time but packet does
             sendData = new DatagramPacket(write, write.length, addressInet, port);
             clientSock.send(sendData);
 
         } catch (IOException io) {
             io.printStackTrace();
         }
-
-        // (old code)
-        // try {
-        // Socket clientSocket = new Socket(address, port);
-
-        // OutputStream output = clientSocket.getOutputStream();
-        // DataOutputStream transmission = new DataOutputStream(output);
-
-        // transmission.writeUTF(message);
-        // transmission.flush();
-        // transmission.close();
-        // // Cleanup
-        // clientSocket.close();
-
-        // } catch (UnknownHostException uh) {
-        // System.out.println(uh);
-        // } catch (IOException io) {
-        // System.out.println(io);
-        // }
     }
 }

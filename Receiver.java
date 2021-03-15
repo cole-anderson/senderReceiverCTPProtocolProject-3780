@@ -1,13 +1,8 @@
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
 
 /*
     CPSC 3780 Cole Anderson and Liam King
@@ -23,7 +18,7 @@ public class Receiver {
         int port = 0;
 
         // (1)(EXAMPLE INPUT) Receiver -f data_received.txt 6431
-        if (args[0].equals("-f") && args.length == 2) {
+        if (args[0].equals("-f") && args.length == 3) {
             System.out.println("Data file selected for receiving data: " + args[1]);
             file = args[1];
             port = Integer.parseInt(args[2]);
@@ -54,6 +49,7 @@ public class Receiver {
      * writeFile: writes to textfile
      */
     static void writeFile(String fileName, String write) {
+        System.out.println("DEBUG1:" + write);
         // CREATE FILE OR ALERT OF OVERWRITE
         try {
             File myFile = new File(fileName);
@@ -69,9 +65,9 @@ public class Receiver {
 
         // WRITES TO TEXTFILE
         try {
-            FileWriter writeFile = new FileWriter(fileName);
-            writeFile.write(write);// write string into file
-            writeFile.close();
+            FileWriter writeToFile = new FileWriter(fileName);
+            writeToFile.write(write);// write string into file
+            writeToFile.close();
         } catch (IOException io) {
             io.printStackTrace();
         }
@@ -104,38 +100,8 @@ public class Receiver {
             else {
                 writeFile(fileName, output);
             }
-
         } catch (IOException io) {
             io.printStackTrace();
         }
-
-        // (old code)
-        // try {
-        // Socket acceptSocket = null;
-        // ServerSocket serverSocket = new ServerSocket(port);
-        // System.out.println("Receiver Server Active...Waiting For Client To Send");
-        // acceptSocket = serverSocket.accept();
-        // System.out.println("//Connection Successful");
-
-        // // Accept message from sender
-        // InputStream receivedData = acceptSocket.getInputStream();
-        // DataInputStream dataIn = new DataInputStream(receivedData);
-
-        // // Reads message into a String
-        // String trans = dataIn.readUTF();
-
-        // // Output to COMMANDLINE or FILE
-        // if (fileName == "")
-        // System.out.println(trans);
-        // else
-        // writeFile(fileName, trans);
-
-        // // Cleanup
-        // acceptSocket.close();
-        // serverSocket.close();
-
-        // } catch (IOException io) {
-        // System.out.println(io);
-        // }
     }
 }
