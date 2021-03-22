@@ -1,4 +1,5 @@
 package liamcole;
+import java.util.*;
 
 public class Header {
 
@@ -17,16 +18,32 @@ public class Header {
      **/
     // Header:
 
+    enum Type {
+      DATA,
+      ACK,
+      NACK
+    }
+
     // Data:
-    // private byte[] timestamp = new byte[4];
+    private BitSet type = new BitSet(2);
 
-    // private byte[] crc1 = new byte[4];
+    private BitSet tr = new BitSet(1);
 
-    // private byte[] payload = new byte[length];
+    private BitSet window = new BitSet(5);
 
-    // private byte[] crc2 = new byte[4];
+    private byte seqnum = 0;
 
-    // Payload (512 bytes)
+    private byte[] length = new byte[2];
+
+    private byte[] timestamp = new byte[4];
+
+    private byte[] crc1 = new byte[4];
+
+    private byte[] payload = new byte[512];
+
+    private byte[] crc2 = new byte[4];
+
+    //Payload (512 bytes)
 
     // Constructors:
     public Header(int in) {
@@ -38,4 +55,78 @@ public class Header {
     }
 
     // Methods:
+    public BitSet getType() {
+      return type;
+    }
+
+    public BitSet getTR() {
+      return tr;
+    }
+
+    public BitSet getWindow() {
+      return window;
+    }
+
+    public byte getSeqnum() {
+      return seqnum;
+    }
+
+    public byte[] getLength() {
+      return length;
+    }
+
+    public byte[] getTimeStamp() {
+      return timestamp;
+    }
+
+    public byte[] getCRC1() {
+      return crc1;
+    }
+
+    public byte[] getCRC2() {
+      return crc2;
+    }
+
+    public byte[] getPayload() {
+      return payload;
+    }
+
+    public void setType(Type types) {
+      switch(types) {
+        case DATA:
+          type.set(1);
+          break;
+        case ACK:
+          type.set(0);
+          break;
+        case NACK:
+          type.set(1);
+          type.set(0);
+          break;
+      }
+    }
+
+    public void setTR() {
+      tr.set(0);
+    }
+
+    public void setWindow(int val) {
+      int i = 0;
+      while (val != 0) {
+        if(val % 2 != 0) {
+          window.set(i);
+        }
+        ++i;
+        val = val >> 1;
+      }
+    }
+
+    public void setSeqnum(int seq) {
+      seqnum = (byte)seq;
+    }
+
+    public void setLength(int len) {
+      length[0] = (byte)(len>>8);
+      length[1] = (byte)(len&256);
+    }
 }
