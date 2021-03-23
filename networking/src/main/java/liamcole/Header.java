@@ -1,5 +1,7 @@
 package liamcole;
 import java.util.*;
+import java.nio.charset.Charset;
+import java.io.UnsupportedEncodingException;
 
 public class Header {
 
@@ -87,8 +89,9 @@ public class Header {
       return crc2;
     }
 
-    public byte[] getPayload() {
-      return payload;
+    public String getPayload() {
+      String str = new String(payload);
+      return str;
     }
 
     public void setType(Type types) {
@@ -128,5 +131,28 @@ public class Header {
     public void setLength(int len) {
       length[0] = (byte)(len>>8);
       length[1] = (byte)(len&256);
+    }
+
+    public void setTimestamp(){
+
+    }
+
+    public void setCRC1(int crc) {
+      crc1[0] = (byte)(crc>>24);
+      crc1[1] = (byte)(crc>>16);
+      crc1[2] = (byte)(crc>>8);
+      crc1[3] = (byte)(crc&256);
+    }
+
+    public void setCRC2(int crc) {
+      crc2[0] = (byte)(crc>>24);
+      crc2[1] = (byte)(crc>>16);
+      crc2[2] = (byte)(crc>>8);
+      crc2[3] = (byte)(crc&256);
+    }
+
+    public void setPayload(String pay)
+    throws UnsupportedEncodingException {
+      payload = pay.getBytes("IBM01140");
     }
 }
