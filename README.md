@@ -6,6 +6,8 @@ $openjdk version "11.0.9.1" 2020-11-04
 $OpenJDK Runtime Environment (build 11.0.9.1+1-Ubuntu-0ubuntu1.20.04)
 $OpenJDK 64-Bit Server VM (build 11.0.9.1+1-Ubuntu-0ubuntu1.20.04, mixed mode, sharing)
 
+#///FOR CHECKPOINT 1:
+
 1.  Open TWO terminals in the directory(coleliamcheckpoint1)
 
 2.  First compile class files(type the following in the command line)
@@ -31,3 +33,13 @@ $OpenJDK 64-Bit Server VM (build 11.0.9.1+1-Ubuntu-0ubuntu1.20.04, mixed mode, s
 4.  Either the file specified will be sent from Sender to Receiver or the user
     can type a message on the Sender side. That file contents or message will then
     by either displayed or written into a file on the Receiver side
+
+///FOR CHECKPOINT2:
+#COMMANDS FOR CHECKPOINT 2:
+#Includes Junit test dependencies in the lib folder
+#The following will compile(1) and run the tests(2)
+
+1.  javac -cp lib/junit-4.12.jar:. Header.java Packet.java Receiver.java Sender.java AppTest.java
+
+2.  java -cp lib/junit-4.12.jar:lib/hamcrest-core-1.3.jar:. org.junit.runner.JUnitCore AppTest
+
