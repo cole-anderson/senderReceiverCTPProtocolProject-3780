@@ -3,10 +3,16 @@ package liamcole;
 import java.util.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.rmi.UnexpectedException;
 import java.io.UnsupportedEncodingException;
 
 public class Header {
-  Packet p = new Packet();
+  Packet p = new Packet(); // packet
+
+  void setTestB(int val) {
+    p.testB = (byte) val;
+    System.out.println("/////" + p.testB);
+  }
 
   // 32 bits == 4 bytes & 4096 bits = 512 bytes
 
@@ -16,28 +22,52 @@ public class Header {
   // (up to 512 bytes) Payload
   // (4 bytes) CRC2
 
-  enum Type {
-    DATA, ACK, NACK
-  }
+  // enum Type {
+  // DATA, ACK, NACK
+  // }
 
-  // Constructor: (TODO: HERE)
+  // Constructor:
   public Header() {
+    // NULL
   }
 
-  /**
-   * Getters:
+  // ********************************************************
+  /*
+   * Type Field Setter&Getter: (TODO: DONE)
    */
+  public void setType(int val) throws Exception {
+    byte temp = (byte) (val >> 6);
+    if (temp != 0) {
+      p.type = temp;
+      System.out.println("//" + p.type);// delete
+    } else {
+      throw new Exception("type invalid"); // fix later
+    }
+  }
 
-  public BitSet getType() {
+  public byte getType() {
     return p.type;
   }
 
-  public BitSet getTR() {
+  // ********************************************************
+  /*
+   * TR Field Setter&Getter: (TODO: DONE)
+   */
+  public void setTR(int val) {
+    p.tr = (byte) (val >>> 5 % 2);
+  }
+
+  public byte getTR() {
     return p.tr;
   }
 
-  public BitSet getWindow() {
+  // ********************************************************
+  public byte getWindow() {
     return p.window;
+  }
+
+  public void setWindow(int val) {
+    p.window = (byte) (val & 31);
   }
 
   public byte getSeqnum() {
@@ -64,41 +94,12 @@ public class Header {
   /**
    * Setters:
    */
-  public void setType(Type types) {
-    switch (types) {
-    case DATA:
-      p.type.set(1);
-      break;
-    case ACK:
-      p.type.set(0);
-      break;
-    case NACK:
-      p.type.set(1);
-      p.type.set(0);
-      break;
-    }
-  }
-
-  public void setTR() {
-    tr.set(0);
-  }
-
-  public void setWindow(int val) {
-    int i = 0;
-    while (val != 0) {
-      if (val % 2 != 0) {
-        P.window.set(i);
-      }
-      ++i;
-      val = val >> 1;
-    }
-  }
 
   public void setSeqnum(int seq) {
     p.seqnum = (byte) seq;
   }
 
-  // ************************************ */
+  // ********************************************************
   /*
    * Length Field Setter&Getter: (TODO: DONE)
    */
@@ -112,26 +113,26 @@ public class Header {
     return convertedLength;
   }
 
-  // ************************************ */
+  // ********************************************************
   public void setTimestamp() {
 
   }
 
-  public void setCRC1(int crc) {
-    p.crc1[0] = (byte) (crc >> 24);
-    crc1[1] = (byte) (crc >> 16);
-    crc1[2] = (byte) (crc >> 8);
-    crc1[3] = (byte) (crc & 256);
-  }
+  // public void setCRC1(int crc) {
+  // p.crc1[0] = (byte) (crc >> 24);
+  // crc1[1] = (byte) (crc >> 16);
+  // crc1[2] = (byte) (crc >> 8);
+  // crc1[3] = (byte) (crc & 255);
+  // }
 
-  public void setCRC2(int crc) {
-    crc2[0] = (byte) (crc >> 24);
-    crc2[1] = (byte) (crc >> 16);
-    crc2[2] = (byte) (crc >> 8);
-    crc2[3] = (byte) (crc & 256);
-  }
+  // public void setCRC2(int crc) {
+  // crc2[0] = (byte) (crc >> 24);
+  // crc2[1] = (byte) (crc >> 16);
+  // crc2[2] = (byte) (crc >> 8);
+  // crc2[3] = (byte) (crc & 255);
+  // }
 
-  public void setPayload(String pay) throws UnsupportedEncodingException {
-    payload = pay.getBytes("IBM01140");
-  }
+  // public void setPayload(String pay) throws UnsupportedEncodingException {
+  // payload = pay.getBytes("IBM01140");
+  // }
 }

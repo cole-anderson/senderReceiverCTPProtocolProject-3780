@@ -89,6 +89,8 @@ public class Sender {
      * clientSide: Sockets
      */
     public static void clientSide(String address, int port, String fileName, String message) {
+        // Header pp = new Header();
+        // pp.setTestB(5);
 
         DatagramSocket clientSock = null;
         DatagramPacket sendData = null;

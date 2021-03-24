@@ -3,12 +3,15 @@ package liamcole;
 import java.util.BitSet;
 
 public class Packet {
+
+    protected byte testB;
+
     // Packet (contains header fields)
-    protected BitSet type = new BitSet(2);
+    protected byte type = 0;
 
-    protected BitSet tr = new BitSet(1);
+    protected byte tr = 0;
 
-    protected BitSet window = new BitSet(5);
+    protected byte window = 0;
 
     protected byte seqnum = 0;
 
