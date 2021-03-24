@@ -1,4 +1,4 @@
-package liamcole;
+// package liamcole; //(because why cant java just work right)
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -13,6 +13,7 @@ public class AppTest {
     /**
      * Rigorous Test :-)
      */
+
     @Test
     public void shouldAnswerWithTrue() {
         // this dumb stuff kinda works lol
@@ -27,9 +28,9 @@ public class AppTest {
 
         // byte stuff
         /*
-         * 
+         *
          * void setType(int val) { //val == 0011 //val 0000011111 }
-         * 
+         *
          */
 
     }
@@ -53,15 +54,15 @@ public class AppTest {
 
     }
 
-    @Test
-    public void TestsetTr() {
-        Header h = new Header();
-        Packet pt = new Packet();
+    // @Test
+    // public void TestsetTr() {
+    // Header h = new Header();
+    // Packet pt = new Packet();
 
-        pt = h.p;
-        h.setTR(0xBB);
-        assertEquals(0x1, pt.tr);
-    }
+    // pt = h.p;
+    // h.setTR(0xBB);
+    // assertEquals(0x1, pt.tr);
+    // }
 
     @Test
     public void TestsetWindow() {

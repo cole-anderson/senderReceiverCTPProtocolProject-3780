@@ -1,4 +1,4 @@
-package liamcole;
+// package liamcole; //(because why cant java just work right)
 
 import java.io.File;
 import java.io.FileNotFoundException;
