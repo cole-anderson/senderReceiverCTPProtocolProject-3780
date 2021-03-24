@@ -39,7 +39,6 @@ public class Header {
     byte temp = (byte) (val >> 6);
     if (temp != 0) {
       p.type = temp;
-      System.out.println("//" + p.type);// delete
     } else {
       throw new Exception("type invalid"); // fix later
     }

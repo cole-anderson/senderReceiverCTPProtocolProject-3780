@@ -13,30 +13,31 @@ public class AppTest {
     /**
      * Rigorous Test :-)
      */
+    // @Test
+    // public void defaultTestbed() {
+    // // this dumb stuff kinda works lol
+    // Header h = new Header();
+    // // int dec = Integer.parseInt("0011", 2);
+    // // h.setMsb(dec << 3);
+    // // int v = h.getMsb();
+    // // assertEquals(3, (v >> 3));
 
-    @Test
-    public void shouldAnswerWithTrue() {
-        // this dumb stuff kinda works lol
-        Header h = new Header();
-        // int dec = Integer.parseInt("0011", 2);
-        // h.setMsb(dec << 3);
-        // int v = h.getMsb();
-        // assertEquals(3, (v >> 3));
+    // h.setLength(300);
+    // assertEquals(300, h.getLength());
 
-        h.setLength(300);
-        assertEquals(300, h.getLength());
+    // // byte stuff
+    // /*
+    // *
+    // * void setType(int val) { //val == 0011 //val 0000011111 }
+    // *
+    // */
 
-        // byte stuff
-        /*
-         *
-         * void setType(int val) { //val == 0011 //val 0000011111 }
-         *
-         */
+    // }
 
-    }
-
+    // Test1(setType):
     @Test
     public void TestsetType() throws Exception {
+        System.out.println("TestsetType");
         Header h = new Header();
         Packet pt = new Packet();
 
@@ -45,14 +46,14 @@ public class AppTest {
         assertEquals(0x01, pt.type);
         pt = h.p; // ptr->
         h.setType(0x80);// 2
-        assertEquals(0x02, h.getType());
+        assertEquals(0x02, pt.type);
         pt = h.p; // ptr->
         h.setType(0xC0);// 3
-        assertEquals(0x03, h.getType());
+        assertEquals(0x03, pt.type);
 
         // test if exception (TODO: LATER?)
-
     }
+    // Test2(getType):
 
     // @Test
     // public void TestsetTr() {
@@ -66,6 +67,7 @@ public class AppTest {
 
     @Test
     public void TestsetWindow() {
+        System.out.println("TestsetWindow");
         Header h = new Header();
         Packet pt = new Packet();
 

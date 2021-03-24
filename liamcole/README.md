@@ -42,4 +42,3 @@ $OpenJDK 64-Bit Server VM (build 11.0.9.1+1-Ubuntu-0ubuntu1.20.04, mixed mode, s
 1.  javac -cp lib/junit-4.12.jar:. Header.java Packet.java Receiver.java Sender.java AppTest.java
 
 2.  java -cp lib/junit-4.12.jar:lib/hamcrest-core-1.3.jar:. org.junit.runner.JUnitCore AppTest
-
