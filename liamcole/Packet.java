@@ -4,8 +4,6 @@ import java.util.BitSet;
 
 public class Packet {
 
-    protected byte testB;
-
     // Packet (contains header fields)
     protected byte type = 0;
 
@@ -21,7 +19,7 @@ public class Packet {
 
     protected byte[] crc1 = new byte[4];
 
-    protected byte[] payload = new byte[512];
+    protected byte[] payload = null;
 
     protected byte[] crc2 = new byte[4];
 

@@ -7,11 +7,15 @@ import java.rmi.UnexpectedException;
 import java.io.UnsupportedEncodingException;
 
 public class Header {
+  // Packet obj that contains the given fields
   Packet p = new Packet(); // packet
 
-  void setTestB(int val) {
-    p.testB = (byte) val;
-    System.out.println("/////" + p.testB);
+  /**
+   * 
+   * @return Packet
+   */
+  public Packet retPacket() {
+    return p;
   }
 
   // 32 bits == 4 bytes & 4096 bits = 512 bytes
@@ -21,10 +25,6 @@ public class Header {
   // (4 bytes) CRC1
   // (up to 512 bytes) Payload
   // (4 bytes) CRC2
-
-  // enum Type {
-  // DATA, ACK, NACK
-  // }
 
   // Constructor:
   public Header() {
@@ -53,7 +53,7 @@ public class Header {
    * TR Field Setter&Getter: (TODO: DONE)
    */
   public void setTR(int val) {
-    p.tr = (byte) (val >>> 5 % 2);
+    p.tr = (byte) (val >>> 5 & 1);
   }
 
   public byte getTR() {
@@ -61,38 +61,24 @@ public class Header {
   }
 
   // ********************************************************
-  public byte getWindow() {
-    return p.window;
-  }
-
+  /*
+   * Window Field Setter&Getter: (TODO: DONE)
+   */
   public void setWindow(int val) {
     p.window = (byte) (val & 31);
   }
 
+  public byte getWindow() {
+    return p.window;
+  }
+
+  // ********************************************************
+  /*
+   * TSeqnum Field Setter&Getter: (TODO: DONE)
+   */
   public byte getSeqnum() {
     return p.seqnum;
   }
-
-  public byte[] getTimeStamp() {
-    return p.timestamp;
-  }
-
-  public byte[] getCRC1() {
-    return p.crc1;
-  }
-
-  public byte[] getCRC2() {
-    return p.crc2;
-  }
-
-  public String getPayload() {
-    String str = new String(p.payload);
-    return str;
-  }
-
-  /**
-   * Setters:
-   */
 
   public void setSeqnum(int seq) {
     p.seqnum = (byte) seq;
@@ -113,25 +99,68 @@ public class Header {
   }
 
   // ********************************************************
-  public void setTimestamp() {
-
+  /*
+   * TimeStamp Field Setter&Getter: (TODO: DONE)
+   */
+  public void setTimestamp(int val) {
+    p.timestamp[0] = (byte) (val >> 24 & 0xFF);
+    p.timestamp[1] = (byte) (val >> 16 & 0xFF);
+    p.timestamp[2] = (byte) (val >> 8 & 0xFF);
+    p.timestamp[3] = (byte) (val & 255 & 0xFF);
   }
 
-  // public void setCRC1(int crc) {
-  // p.crc1[0] = (byte) (crc >> 24);
-  // crc1[1] = (byte) (crc >> 16);
-  // crc1[2] = (byte) (crc >> 8);
-  // crc1[3] = (byte) (crc & 255);
-  // }
+  public int getTimestamp() {
+    int convertedTimestamp = ByteBuffer.wrap(p.timestamp).getInt();
+    return convertedTimestamp;
+  }
 
-  // public void setCRC2(int crc) {
-  // crc2[0] = (byte) (crc >> 24);
-  // crc2[1] = (byte) (crc >> 16);
-  // crc2[2] = (byte) (crc >> 8);
-  // crc2[3] = (byte) (crc & 255);
-  // }
+  // ********************************************************
+  /*
+   * CRC1 Field Setter&Getter: (TODO: DONE)
+   */
+  public void setCRC1(int crc) {
+    p.crc1[0] = (byte) (crc >> 24 & 0xFF);
+    p.crc1[1] = (byte) (crc >> 16 & 0xFF);
+    p.crc1[2] = (byte) (crc >> 8 & 0xFF);
+    p.crc1[3] = (byte) (crc & 255 & 0xFF);
+  }
 
-  // public void setPayload(String pay) throws UnsupportedEncodingException {
-  // payload = pay.getBytes("IBM01140");
-  // }
+  public int getCRC1() {
+    int convertedCRC1 = ByteBuffer.wrap(p.crc1).getInt();
+    return convertedCRC1;
+  }
+
+  // ********************************************************
+  /*
+   * CRC2 Field Setter&Getter: (TODO: DONE)
+   */
+  public void setCRC2(int crc) {
+    p.crc2[0] = (byte) (crc >> 24 & 0xFF);
+    p.crc2[1] = (byte) (crc >> 16 & 0xFF);
+    p.crc2[2] = (byte) (crc >> 8 & 0xFF);
+    p.crc2[3] = (byte) (crc & 255 & 0xFF);
+  }
+
+  public int getCRC2() {
+    int convertedCRC2 = ByteBuffer.wrap(p.crc2).getInt();
+    return convertedCRC2;
+  }
+
+  // ********************************************************
+  /*
+   * Payload Field Setter&Getter: (TODO: DONE)
+   */
+  public void setPayload(String pay) throws UnsupportedEncodingException {
+    if (this.getTR() == 0) {
+      p.payload = pay.getBytes();
+    } else {
+      p.payload = null;
+    }
+  }
+
+  public String getPayload() {
+    String str = new String(p.payload);
+    return str;
+  }
+
 }

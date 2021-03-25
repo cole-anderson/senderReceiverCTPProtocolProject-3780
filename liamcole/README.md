@@ -37,7 +37,7 @@ $OpenJDK 64-Bit Server VM (build 11.0.9.1+1-Ubuntu-0ubuntu1.20.04, mixed mode, s
 ///FOR CHECKPOINT2:
 #COMMANDS FOR CHECKPOINT 2:
 #Includes Junit test dependencies in the lib folder
-#The following will compile(1) and run the tests(2)
+#The following will compile(1) and run the tests(2) #**LINUX ONLY**
 
 1.  javac -cp lib/junit-4.12.jar:. Header.java Packet.java Receiver.java Sender.java AppTest.java
 
