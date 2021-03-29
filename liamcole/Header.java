@@ -2,8 +2,10 @@
 
 import java.util.*;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.rmi.UnexpectedException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+// import java.nio.charset.Charset;
+// import java.rmi.UnexpectedException;
 import java.io.UnsupportedEncodingException;
 
 public class Header {
@@ -16,6 +18,29 @@ public class Header {
    */
   public Packet retPacket() {
     return p;
+  }
+
+  public byte[] returnCTPByteArray() throws IOException {
+    System.out.println("hey");
+    byte[] retValue = null;
+    int size = 0;
+
+    // Scuffed little hack (FIXME: HACKY HARD CODE)
+    ByteArrayOutputStream temp = new ByteArrayOutputStream();
+    temp.write(this.getType() + this.getTR() + this.getWindow()); // 1 byte
+    temp.write(this.getSeqnum()); // 2byte
+    temp.write(p.length); // 2 byte
+    temp.write(p.timestamp); // 4 byte
+    temp.write(p.crc1); // 4 byte
+    temp.write(p.payload); // 4 byte
+    if (p.crc2 != null) {
+      temp.write(p.crc2);
+    }
+
+    retValue = temp.toByteArray();
+    System.out.println("///debug1: " + retValue.length);
+
+    return retValue;
   }
 
   // 32 bits == 4 bytes & 4096 bits = 512 bytes
@@ -135,6 +160,7 @@ public class Header {
    * CRC2 Field Setter&Getter: (TODO: DONE)
    */
   public void setCRC2(int crc) {
+    p.crc2 = new byte[4];
     p.crc2[0] = (byte) (crc >> 24 & 0xFF);
     p.crc2[1] = (byte) (crc >> 16 & 0xFF);
     p.crc2[2] = (byte) (crc >> 8 & 0xFF);

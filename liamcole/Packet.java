@@ -1,7 +1,5 @@
 // package liamcole; //(because why cant java just work right)
 
-import java.util.BitSet;
-
 public class Packet {
 
     // Packet (contains header fields)
@@ -21,6 +19,6 @@ public class Packet {
 
     protected byte[] payload = null;
 
-    protected byte[] crc2 = new byte[4];
+    protected byte[] crc2 = null;
 
 }

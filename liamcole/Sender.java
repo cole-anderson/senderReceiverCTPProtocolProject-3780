@@ -76,6 +76,7 @@ public class Sender {
      * Allows for non prompted user input in the case a file is not specified to be
      * sent
      */
+
     static String messageMode() {
         String input = "";
         // System.out.println("Enter your message");// DEL: DELETE THIS LINE
@@ -86,7 +87,7 @@ public class Sender {
     }
 
     /**
-     * clientSide: Sockets
+     * awdawdasd clientSide: Sockets
      */
     public static void clientSide(String address, int port, String fileName, String message) {
         // Header pp = new Header();
@@ -95,8 +96,14 @@ public class Sender {
         DatagramSocket clientSock = null;
         DatagramPacket sendData = null;
         InetAddress addressInet = null;
-        byte[] write = new byte[65536];
-        write = message.getBytes();// we can assume input or file is already been read
+
+        // Packet creation (TODO: )
+        // CONTEXT: Header contains the packet, Packet contains the actual fields
+        Header headerOne = new Header();
+
+        // byte[] write = new byte[65536];
+        // write = message.getBytes();// we can assume input or file is already been
+        // read
 
         // InetAddress conversions
         try {

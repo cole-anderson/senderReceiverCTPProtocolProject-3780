@@ -1,8 +1,8 @@
 // package liamcole; //(because why cant java just work right)
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeNoException;
+// import static org.junit.Assert.assertTrue;
+// import static org.junit.Assume.assumeNoException;
 
 import java.io.UnsupportedEncodingException;
 
@@ -12,6 +12,31 @@ import org.junit.Test;
  * Unit tests 3780
  */
 public class AppTest {
+    /**
+     * checkpoint 3 stuff
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void checkPoint3() throws Exception {
+
+        Header h = new Header();
+        String message = "hello";
+        h.setType(0x40);
+        h.setTR(0x01);
+        h.setLength(message.length());
+        h.setTimestamp(3);
+        h.setCRC1(3);
+        h.setPayload(message);
+
+        byte[] hey = h.returnCTPByteArray();
+        assertEquals(hey[0], 0x01);
+
+    }
+
+    // +++++++++++++++++++++++++++++++++
+
     // Test1(setType):
     @Test
     public void TestsetType() throws Exception {
