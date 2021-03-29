@@ -25,14 +25,31 @@ public class AppTest {
         String message = "hello";
         h.setType(0x40);
         h.setTR(0x01);
+        h.setWindow(5);
+
+        h.setSeqnum(3);
+
         h.setLength(message.length());
+
         h.setTimestamp(3);
+
         h.setCRC1(3);
+
         h.setPayload(message);
 
-        byte[] hey = h.returnCTPByteArray();
-        assertEquals(hey[0], 0x01);
+        Header in = new Header();
 
+        byte[] hey = h.returnCTPByteArray();
+
+        System.out.println("FIX" + hey[0]);
+        System.out.println("FIX" + hey[1]);
+
+        in.setWindow((int) hey[0]);
+        assertEquals(5, in.getWindow());
+
+        // works:
+        // in.setSeqnum(hey[1]);
+        // assertEquals(3, in.getSeqnum());
     }
 
     // +++++++++++++++++++++++++++++++++

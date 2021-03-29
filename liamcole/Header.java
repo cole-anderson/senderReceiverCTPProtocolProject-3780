@@ -20,25 +20,42 @@ public class Header {
     return p;
   }
 
+  /**
+   * 
+   * @return packet as a byte[] for use in transmission over datagram socket
+   * @throws IOException
+   */
   public byte[] returnCTPByteArray() throws IOException {
-    System.out.println("hey");
     byte[] retValue = null;
     int size = 0;
 
     // Scuffed little hack (FIXME: HACKY HARD CODE)
     ByteArrayOutputStream temp = new ByteArrayOutputStream();
-    temp.write(this.getType() + this.getTR() + this.getWindow()); // 1 byte
-    temp.write(this.getSeqnum()); // 2byte
+
+    byte tempType = this.getType();
+    byte tempTr = this.getTR();
+    byte tempWindow = this.getWindow();
+    System.out.println(tempWindow);
+
+    byte tt = (byte) (tempType + tempWindow);
+    System.out.println("tt" + tt);
+
+    byte[] addTo = new byte[] { (byte) (tempType + tempTr + tempWindow) }; // could convert ugly below to this
+    System.out.println("what the" + addTo[0]);
+
+    temp.write(addTo);
+    temp.write(p.seqnum); // 2byte
     temp.write(p.length); // 2 byte
     temp.write(p.timestamp); // 4 byte
     temp.write(p.crc1); // 4 byte
-    temp.write(p.payload); // 4 byte
+    temp.write(p.payload); // 0-512 bytes
     if (p.crc2 != null) {
+      // Accounts for optional crc2
       temp.write(p.crc2);
     }
 
     retValue = temp.toByteArray();
-    System.out.println("///debug1: " + retValue.length);
+    System.out.println("///sizeeee: " + retValue.length);
 
     return retValue;
   }
@@ -62,10 +79,11 @@ public class Header {
    */
   public void setType(int val) throws Exception {
     byte temp = (byte) (val >> 6);
+    System.out.println("debugsettype" + temp);
     if (temp != 0) {
       p.type = temp;
     } else {
-      throw new Exception("type invalid"); // fix later
+      throw new Exception("type invalid setType"); // fix later
     }
   }
 
@@ -90,6 +108,8 @@ public class Header {
    * Window Field Setter&Getter: (TODO: DONE)
    */
   public void setWindow(int val) {
+    System.out.println("window" + val);
+    System.out.println("window after" + (byte) (val & 31));
     p.window = (byte) (val & 31);
   }
 
@@ -179,6 +199,7 @@ public class Header {
   public void setPayload(String pay) throws UnsupportedEncodingException {
     if (this.getTR() == 0) {
       p.payload = pay.getBytes();
+      // TODO ADD CHECK FOR IF OVER 512
     } else {
       p.payload = null;
     }
