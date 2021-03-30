@@ -17,8 +17,8 @@ public class Packet {
 
     protected byte[] crc1 = new byte[4];
 
-    protected byte[] payload = null;
+    protected byte[] payload;
 
-    protected byte[] crc2 = null;
+    protected byte[] crc2;
 
 }

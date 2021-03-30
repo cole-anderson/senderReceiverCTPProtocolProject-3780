@@ -33,21 +33,28 @@ public class Header {
     ByteArrayOutputStream temp = new ByteArrayOutputStream();
 
     byte tempType = (byte) ((byte) this.getType() << 6); // WORKS!
-    byte tempTr = (byte) ((byte) this.getTR() << 5 & 1);
+    byte tempTr = this.getTR();
     byte tempWindow = this.getWindow();
-    System.out.println(tempWindow);
 
-    byte tt = (byte) (tempType + tempWindow);
-    System.out.println("tt" + tt);
+    // byte temp1 = (byte) this.getType();
+    // System.out.println("type::" + temp1);
+    // byte temp2 = (byte) this.getTR();
+    // System.out.println("tr::" + temp2);
+    // byte temp3 = (byte) this.getWindow();
+    // System.out.println("wind::" + temp3);
 
-    byte[] addTo = new byte[] { (byte) (tempType + tempTr + tempWindow) }; // could convert ugly below to this
-    System.out.println("what the" + addTo[0]);
+    byte[] addTo = new byte[] { (byte) (tempType + tempTr + tempWindow) }; //
+    System.out.println("//what is addTo[0]::" + addTo[0]);
+    // could convert ugly below to this
+    // System.out.println("what the" + addTo[0]);
 
     temp.write(addTo);
+    // temp.write(tempType + temp2 + temp3);// ?? should be 78
     temp.write(p.seqnum); // 2byte
     temp.write(p.length); // 2 byte
     temp.write(p.timestamp); // 4 byte
     temp.write(p.crc1); // 4 byte
+    System.out.println("error here");
     temp.write(p.payload); // 0-512 bytes
     if (p.crc2 != null) {
       // Accounts for optional crc2
@@ -55,7 +62,8 @@ public class Header {
     }
 
     retValue = temp.toByteArray();
-    System.out.println("///sizeeee: " + retValue.length);
+    System.out.println("//Size of packet:: " + retValue.length);
+    System.out.println("what retValue[0] is now::" + retValue[0]);
 
     return retValue;
   }
@@ -79,7 +87,7 @@ public class Header {
    */
   public void setType(int val) throws Exception {
     byte temp = (byte) (val >> 6);
-    System.out.println("debugsettype" + temp);
+    // System.out.println("debugsettype" + temp);
     if (temp != 0) {
       p.type = temp;
     } else {
@@ -96,7 +104,9 @@ public class Header {
    * TR Field Setter&Getter: (TODO: DONE)
    */
   public void setTR(int val) {
+    System.out.println("///? " + val);
     p.tr = (byte) (val >>> 5 & 1);
+    System.out.println("///$" + p.tr);
   }
 
   public byte getTR() {
@@ -108,8 +118,8 @@ public class Header {
    * Window Field Setter&Getter: (TODO: DONE)
    */
   public void setWindow(int val) {
-    System.out.println("window" + val);
-    System.out.println("window after" + (byte) (val & 31));
+    // System.out.println("window" + val);
+    // System.out.println("window after" + (byte) (val & 31));
     p.window = (byte) (val & 31);
   }
 

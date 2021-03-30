@@ -23,15 +23,16 @@ public class AppTest {
 
         Header h = new Header();
         String message = "hello";
+        // 01|2|3 7|
+        // 01|0|01000
+        // 01001000
+        // 72
+        h.setType(0x48);
 
-        h.setType(0x40);
-        // byte v = h.getType();
+        System.out.println("/////fucktype:::" + h.getType());
 
-        // byte z = (byte) (v << 6);
-        // System.out.println("this is" + z);
-
-        h.setTR(0x01);
-        h.setWindow(5);
+        h.setTR(0x48);
+        h.setWindow(0x48);
 
         h.setSeqnum(3);
 
@@ -45,15 +46,20 @@ public class AppTest {
 
         Header in = new Header();
 
-        byte[] hey = h.returnCTPByteArray();
+        byte[] hey = h.returnCTPByteArray(); // here
 
-        System.out.println("FIX" + hey[0]);
-        System.out.println("FIX" + hey[1]);
+        System.out.println("what is hey[0]::" + hey[0]);
+        // System.out.println("FIX" + hey[1]);
+
+        int testV = (int) hey[0];
+        System.out.println("|" + testV);
 
         in.setType((int) hey[0]);
         in.setTR((int) hey[0]);
+        in.setWindow((int) hey[0]);
         assertEquals(1, in.getType());
-        assertEquals(1, in.getTR());
+        assertEquals(0, in.getTR());
+        assertEquals(8, in.getWindow());
 
         // works:
         // in.setSeqnum(hey[1]);
