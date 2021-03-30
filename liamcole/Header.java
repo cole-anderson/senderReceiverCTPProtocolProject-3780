@@ -32,8 +32,8 @@ public class Header {
     // Scuffed little hack (FIXME: HACKY HARD CODE)
     ByteArrayOutputStream temp = new ByteArrayOutputStream();
 
-    byte tempType = this.getType();
-    byte tempTr = this.getTR();
+    byte tempType = (byte) ((byte) this.getType() << 6); // WORKS!
+    byte tempTr = (byte) ((byte) this.getTR() << 5 & 1);
     byte tempWindow = this.getWindow();
     System.out.println(tempWindow);
 

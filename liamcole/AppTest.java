@@ -23,7 +23,13 @@ public class AppTest {
 
         Header h = new Header();
         String message = "hello";
+
         h.setType(0x40);
+        // byte v = h.getType();
+
+        // byte z = (byte) (v << 6);
+        // System.out.println("this is" + z);
+
         h.setTR(0x01);
         h.setWindow(5);
 
@@ -44,8 +50,10 @@ public class AppTest {
         System.out.println("FIX" + hey[0]);
         System.out.println("FIX" + hey[1]);
 
-        in.setWindow((int) hey[0]);
-        assertEquals(5, in.getWindow());
+        in.setType((int) hey[0]);
+        in.setTR((int) hey[0]);
+        assertEquals(1, in.getType());
+        assertEquals(1, in.getTR());
 
         // works:
         // in.setSeqnum(hey[1]);
