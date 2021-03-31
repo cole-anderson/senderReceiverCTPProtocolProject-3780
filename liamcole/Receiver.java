@@ -126,10 +126,16 @@ public class Receiver {
             Header s = new Header(); //create header for acknowledgement
 
             if(r.getTR() == 1) { //if TR is 1 we send a NACK else we send ACK
-                s.setType(0xC0); //11000000
+                s.setType(0xD5); //11010101
+                s.setTR(0xD5);
+                s.setWindow(0xD5);
             } else {
-                s.setType(0x80); //10000000
+                s.setType(0x95); //10010101
+                s.setTR(0x95);
+                s.setWindow(0x95);
             }
+            s.setSeqnum(0);
+            s.setLength(0);
 
             try {
 
