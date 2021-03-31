@@ -22,6 +22,31 @@ public class Header {
 
   /**
    * 
+   * @return packet for just acknowledgement
+   * @throws IOException
+   */
+  public byte[] ackknowledgement() throws IOException {
+    byte[] acknowledgementP = null;
+
+    ByteArrayOutputStream temp = new ByteArrayOutputStream();
+
+    byte tempType = (byte) ((byte) this.getType() << 6); // WORKS!
+    byte tempTr = this.getTR();
+    byte tempWindow = this.getWindow();
+    byte[] addTo = new byte[] { (byte) (tempType + tempTr + tempWindow) };
+
+    temp.write(addTo);
+    temp.write(p.seqnum); // 2byte
+    temp.write(p.length); // 2 byte
+    temp.write(p.timestamp); // 4 byte
+
+    acknowledgementP = temp.toByteArray();
+
+    return acknowledgementP;
+  }
+
+  /**
+   * 
    * @return packet as a byte[] for use in transmission over datagram socket
    * @throws IOException
    */

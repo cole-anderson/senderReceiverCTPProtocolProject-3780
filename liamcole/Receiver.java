@@ -94,7 +94,7 @@ public class Receiver {
             serverSock.receive(receivedData);
             byte[] read = receivedData.getData();
 
-            //building header from receieved data
+            // building header from receieved data
             Header r = new Header();
             r.setType((int) read[0]);
             r.setTR((int) read[0]);
@@ -106,8 +106,8 @@ public class Receiver {
             r.setCRC1(read[8] + read[9] + read[10] + read[11]);
 
             byte[] temp = new byte[r.getLength()];
-            for(int i = 0; i < r.getLength(); i++) {
-                temp[i] = read[12+i];
+            for (int i = 0; i < r.getLength(); i++) {
+                temp[i] = read[12 + i];
             }
             String p = new String(temp);
             r.setPayload(p);
@@ -123,8 +123,9 @@ public class Receiver {
                 writeFile(fileName, output);
             }
 
-            Header s = new Header(); //create header for acknowledgement
+            Header s = new Header(); // create header for acknowledgement
 
+<<<<<<< HEAD
             if(r.getTR() == 1) { //if TR is 1 we send a NACK else we send ACK
                 s.setType(0xD5); //11010101
                 s.setTR(0xD5);
@@ -133,22 +134,29 @@ public class Receiver {
                 s.setType(0x95); //10010101
                 s.setTR(0x95);
                 s.setWindow(0x95);
+=======
+            if (r.getTR() == 1) { // if TR is 1 we send a NACK else we send ACK
+                s.setType(0xC0); // 11000000
+            } else {
+                s.setType(0x80); // 10000000
+>>>>>>> 6a2026d6815644337d37b4843330ff5112a504a8
             }
             s.setSeqnum(0);
             s.setLength(0);
 
             try {
 
-            InetAddress from = receivedData.getAddress(); 
-            //get address that data was received from so we know where to send acknowledgement
-            DatagramPacket ack = new DatagramPacket(s.returnCTPByteArray(), s.returnCTPByteArray().length, from, port);
-            //create packet for ackknowledgement
-            serverSock.send(ack); //send acknowledgement back to sender
+                InetAddress from = receivedData.getAddress();
+                // get address that data was received from so we know where to send
+                // acknowledgement
+                DatagramPacket ack = new DatagramPacket(s.returnCTPByteArray(), s.returnCTPByteArray().length, from,
+                        port);
+                // create packet for ackknowledgement
+                serverSock.send(ack); // send acknowledgement back to sender
 
             } catch (IOException io) {
                 io.printStackTrace();
             }
-
 
         } catch (IOException io) {
             io.printStackTrace();
