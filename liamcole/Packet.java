@@ -19,6 +19,6 @@ public class Packet {
 
     protected byte[] payload;
 
-    protected byte[] crc2;
+    protected byte[] crc2 = new byte[4];
 
 }

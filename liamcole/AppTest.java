@@ -28,9 +28,6 @@ public class AppTest {
         // 01001000
         // 72
         h.setType(0x48);
-
-        System.out.println("/////fucktype:::" + h.getType());
-
         h.setTR(0x48);
         h.setWindow(0x48);
 
@@ -57,13 +54,37 @@ public class AppTest {
         in.setType((int) hey[0]);
         in.setTR((int) hey[0]);
         in.setWindow((int) hey[0]);
+
+        in.setSeqnum(hey[1]);
+
+        in.setLength(hey[2] + hey[3]);
+
+        in.setTimestamp(hey[4] + hey[5] + hey[6] + hey[7]);
+
+        in.setCRC1(hey[8] + hey[9] + hey[10] + hey[11]);
+        
+        int index = 0;
+        for(int i = 0; i < in.getLength(); i++){
+            index++;
+        }
+        
+        in.setPayload()
+
+        // Tests:
         assertEquals(1, in.getType());
         assertEquals(0, in.getTR());
         assertEquals(8, in.getWindow());
 
-        // works:
-        // in.setSeqnum(hey[1]);
-        // assertEquals(3, in.getSeqnum());
+        assertEquals(3, in.getSeqnum());
+
+        assertEquals(5, in.getLength());
+
+        assertEquals(3, in.getTimestamp());
+
+        assertEquals(3, in.getCRC1());
+
+        // assertEquals("hello", in.getPayload());
+
     }
 
     // +++++++++++++++++++++++++++++++++

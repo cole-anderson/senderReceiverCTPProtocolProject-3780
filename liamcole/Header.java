@@ -36,25 +36,13 @@ public class Header {
     byte tempTr = this.getTR();
     byte tempWindow = this.getWindow();
 
-    // byte temp1 = (byte) this.getType();
-    // System.out.println("type::" + temp1);
-    // byte temp2 = (byte) this.getTR();
-    // System.out.println("tr::" + temp2);
-    // byte temp3 = (byte) this.getWindow();
-    // System.out.println("wind::" + temp3);
-
     byte[] addTo = new byte[] { (byte) (tempType + tempTr + tempWindow) }; //
-    System.out.println("//what is addTo[0]::" + addTo[0]);
-    // could convert ugly below to this
-    // System.out.println("what the" + addTo[0]);
 
-    temp.write(addTo);
-    // temp.write(tempType + temp2 + temp3);// ?? should be 78
+    temp.write(addTo); // 1 byte
     temp.write(p.seqnum); // 2byte
     temp.write(p.length); // 2 byte
     temp.write(p.timestamp); // 4 byte
     temp.write(p.crc1); // 4 byte
-    System.out.println("error here");
     temp.write(p.payload); // 0-512 bytes
     if (p.crc2 != null) {
       // Accounts for optional crc2
@@ -62,8 +50,14 @@ public class Header {
     }
 
     retValue = temp.toByteArray();
+
+    // funky
     System.out.println("//Size of packet:: " + retValue.length);
     System.out.println("what retValue[0] is now::" + retValue[0]);
+    System.out.println("what retValue[1] is now::" + retValue[1]);
+    System.out.println("what retValue[2] is now::" + retValue[2]);
+    System.out.println("what retValue[3] is now::" + retValue[3]);
+    System.out.println("what retValue[4] is now::" + retValue[4]);
 
     return retValue;
   }
