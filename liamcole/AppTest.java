@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 // import static org.junit.Assume.assumeNoException;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -62,13 +63,14 @@ public class AppTest {
         in.setTimestamp(hey[4] + hey[5] + hey[6] + hey[7]);
 
         in.setCRC1(hey[8] + hey[9] + hey[10] + hey[11]);
-        
+
         int index = 0;
-        for(int i = 0; i < in.getLength(); i++){
+        for (int i = 0; i < in.getLength(); i++) {
             index++;
         }
-        
-        in.setPayload()
+        byte[] payloadArray = Arrays.copyOfRange(hey, 12, 12 + index);
+        String pay = new String(payloadArray);
+        in.setPayload(pay);
 
         // Tests:
         assertEquals(1, in.getType());
@@ -83,7 +85,7 @@ public class AppTest {
 
         assertEquals(3, in.getCRC1());
 
-        // assertEquals("hello", in.getPayload());
+        assertEquals("hello", in.getPayload());
 
     }
 
