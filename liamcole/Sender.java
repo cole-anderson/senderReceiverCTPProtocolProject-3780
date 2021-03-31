@@ -16,7 +16,7 @@ import java.util.Scanner;
 
 public class Sender {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         /*
          * sender -f data.txt 127.0.0.1 64341 [-f, file, ipaddress, port] ........
          * sender 127.0.0.1 64341 [ipaddress,port]
@@ -88,21 +88,63 @@ public class Sender {
 
     /**
      * awdawdasd clientSide: Sockets
+     * 
+     * @throws Exception
      */
-    public static void clientSide(String address, int port, String fileName, String message) {
-        // Header pp = new Header();
-        // pp.setTestB(5);
+    public static void clientSide(String address, int port, String fileName, String message) throws Exception {
 
         DatagramSocket clientSock = null;
         DatagramPacket sendData = null;
         InetAddress addressInet = null;
 
+        /**
+         * Checkpoint 3: TODO: COLE
+         */
         // Packet creation (TODO: )
         // CONTEXT: Header contains the packet, Packet contains the actual fields
         Header headerOne = new Header();
 
-        // byte[] write = new byte[65536];
-        // write = message.getBytes();// we can assume input or file is already been
+        // Set Packet Parameters
+        /*
+         * TOCONSIDER: TR SHOULD ALWAYS BE 0
+         * 
+         * -> 0x48 01 0 01000 -> (base case for now)
+         * 
+         * (0) TYPE|TR|WINDOW
+         * 
+         * Type 1: Data Type 2: ACK(NOT REALLY APPLICABLE SENDER SIDE) Type 3: NACK
+         * 
+         * TR: Default 0 (will be set eventally by linksim)
+         * 
+         * Window: TODO: THIS HERE LOL
+         * 
+         * (1) SeqNum
+         * 
+         * (2)(3) Length
+         * 
+         * (4-5-6-7) Timestamp
+         * 
+         * (8-9-10-11) CRC1
+         * 
+         * (12 to Length) Payload
+         * 
+         * (if applicable CRC2)
+         */
+
+        // Setting Header Parameters:
+        headerOne.setType(0x48);
+        headerOne.setTR(0x48);
+        headerOne.setWindow(0x48);
+        headerOne.setSeqnum(5); // need to do calculations still
+        headerOne.setLength(message.length()); // do error check for if over 512 convert to multiple packets
+        headerOne.setTimestamp(55); // need to do creation still
+        headerOne.setCRC1(3);// need to do calculations still
+        headerOne.setPayload(message);
+        // CRC2 TODO: COLE
+
+        // Preparing Packet for Transmission:
+        byte[] write = headerOne.returnCTPByteArray();
+
         // read
 
         // InetAddress conversions
