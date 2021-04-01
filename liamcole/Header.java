@@ -1,6 +1,7 @@
 // package liamcole; //(because why cant java just work right)
 
 import java.util.*;
+import java.util.zip.CRC32;
 import java.nio.ByteBuffer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -192,11 +193,24 @@ public class Header {
   /*
    * CRC1 Field Setter&Getter: (TODO: DONE)
    */
-  public void setCRC1(int crc) {
-    p.crc1[0] = (byte) (crc >> 24 & 0xFF);
-    p.crc1[1] = (byte) (crc >> 16 & 0xFF);
-    p.crc1[2] = (byte) (crc >> 8 & 0xFF);
-    p.crc1[3] = (byte) (crc & 255 & 0xFF);
+  public void setCRC1(int crc) throws IOException {
+    CRC32 c = new CRC32();
+    ByteArrayOutputStream temp = new ByteArrayOutputStream();
+
+    byte tempType = (byte) ((byte) this.getType() << 6); // WORKS!
+    byte tempTr = this.getTR();
+    byte tempWindow = this.getWindow();
+    byte[] addTo = new byte[] { (byte) (tempType + tempTr + tempWindow) };
+    temp.write(addTo);
+    temp.write(p.seqnum); // 2byte
+    temp.write(p.length); // 2 byte
+    temp.write(p.timestamp); // 4 byte
+
+    c.update(temp.toByteArray());
+
+    ByteBuffer b = ByteBuffer.allocate(4);
+    b.putInt((int) c.getValue());
+    p.crc1 = b.array();
   }
 
   public int getCRC1() {
@@ -209,11 +223,12 @@ public class Header {
    * CRC2 Field Setter&Getter: (TODO: DONE)
    */
   public void setCRC2(int crc) {
-    p.crc2 = new byte[4];
-    p.crc2[0] = (byte) (crc >> 24 & 0xFF);
-    p.crc2[1] = (byte) (crc >> 16 & 0xFF);
-    p.crc2[2] = (byte) (crc >> 8 & 0xFF);
-    p.crc2[3] = (byte) (crc & 255 & 0xFF);
+    CRC32 c = new CRC32();
+    c.update(p.payload());
+
+    ByteBuffer b = ByteBuffer.allocate(4);
+    b.putInt((int) c.getValue());
+    p.crc2 = b.array();
   }
 
   public int getCRC2() {

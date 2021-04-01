@@ -94,8 +94,12 @@ public class Sender {
     public static void clientSide(String address, int port, String fileName, String message) throws Exception {
 
         DatagramSocket clientSock = null;
-        DatagramPacket sendData = null;
+        DatagramPacket data = null;
         InetAddress addressInet = null;
+
+        // For ACK.NACK:
+        byte[] recBuf;
+        DatagramPacket acknowledgement;
 
         /**
          * Checkpoint 3: TODO: COLE
@@ -138,12 +142,15 @@ public class Sender {
         headerOne.setSeqnum(5); // need to do calculations still
         headerOne.setLength(message.length()); // do error check for if over 512 convert to multiple packets
         headerOne.setTimestamp(55); // need to do creation still
-        headerOne.setCRC1(3);// need to do calculations still
+        long lol = 3175023593L;
+        int v = (int) lol;
+        headerOne.setCRC1(v);// need to do calculations still
         headerOne.setPayload(message);
         // CRC2 TODO: COLE
 
         // Preparing Packet for Transmission:
         byte[] write = headerOne.returnCTPByteArray();
+        byte[] read = null;
 
         // read
 
@@ -157,9 +164,17 @@ public class Sender {
         // Sockets
         try {
             clientSock = new DatagramSocket();// doesnt require port at this time but packet does
-            sendData = new DatagramPacket(write, write.length, addressInet, port);
-            clientSock.send(sendData);
+            data = new DatagramPacket(write, write.length, addressInet, port);
+            clientSock.send(data);
 
+            while (true) {
+                if (true) {
+                    clientSock.receive(rec);
+                    System.out.println("//" + rec.getData());
+
+                }
+
+            }
         } catch (IOException io) {
             io.printStackTrace();
         }

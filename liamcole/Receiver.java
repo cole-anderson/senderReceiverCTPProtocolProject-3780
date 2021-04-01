@@ -125,12 +125,12 @@ public class Receiver {
 
             Header s = new Header(); // create header for acknowledgement
 
-            if(r.getTR() == 1) { //if TR is 1 we send a NACK else we send ACK
-                s.setType(0xD5); //11010101
+            if (r.getTR() == 1) { // if TR is 1 we send a NACK else we send ACK
+                s.setType(0xD5); // 11010101
                 s.setTR(0xD5);
                 s.setWindow(0xD5);
             } else {
-                s.setType(0x95); //10010101
+                s.setType(0x95); // 10010101
                 s.setTR(0x95);
                 s.setWindow(0x95);
             }
@@ -142,8 +142,7 @@ public class Receiver {
                 InetAddress from = receivedData.getAddress();
                 // get address that data was received from so we know where to send
                 // acknowledgement
-                DatagramPacket ack = new DatagramPacket(s.ackknowledgement(), s.ackknowledgement().length, from,
-                        port);
+                DatagramPacket ack = new DatagramPacket(s.ackknowledgement(), s.ackknowledgement().length, from, port);
                 // create packet for ackknowledgement
                 serverSock.send(ack); // send acknowledgement back to sender
 
