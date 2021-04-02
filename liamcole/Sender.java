@@ -98,8 +98,9 @@ public class Sender {
         InetAddress addressInet = null;
 
         // For ACK.NACK:
-        byte[] recBuf;
+        byte[] recBuf = new byte[65536];
         DatagramPacket acknowledgement;
+        acknowledgement = new DatagramPacket(recBuf, recBuf.length);
 
         /**
          * Checkpoint 3: TODO: COLE
@@ -142,12 +143,10 @@ public class Sender {
         headerOne.setSeqnum(0); // need to do calculations still
         headerOne.setLength(message.length()); // do error check for if over 512 convert to multiple packets
         headerOne.setTimestamp(55); // need to do creation still
-        long lol = 3175023593L;
-        int v = (int) lol;
-        headerOne.setCRC1(v);// need to do calculations still
+        headerOne.setCRC1();// need to do calculations still
         headerOne.setPayload(message);
         // CRC2 TODO: COLE
-        headerOne.setCRC2(0xCBF43926);
+        headerOne.setCRC2();
 
         // Preparing Packet for Transmission:
         byte[] write = headerOne.returnCTPByteArray();
@@ -164,9 +163,18 @@ public class Sender {
 
         // Sockets
         try {
-            clientSock = new DatagramSocket();// doesnt require port at this time but packet does
+            clientSock = new DatagramSocket(port);// doesnt require port at this time but packet does
             data = new DatagramPacket(write, write.length, addressInet, port);
             clientSock.send(data);
+
+            System.out.println("Waiting for 2 sec");
+            Thread.sleep(2000);
+            System.out.println("Done waiting");
+
+            clientSock.receive(acknowledgement);
+            System.out.println("Recieved ack");
+            byte[] readack = acknowledgement.getData();
+            System.out.println("First byte of ack: " + readack[0]);
 
             // while (true) {
             // if (true) {

@@ -6,7 +6,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.zip.CRC32;
 
 import org.junit.Test;
 
@@ -259,19 +261,41 @@ public class AppTest {
     }
 
     @Test
-    public void TestsetCRC1() throws IOException {
+    public void TestsetCRC1() throws Exception {
         System.out.println("TestsetCRC1");
 
         // Initializations
         Header h = new Header();
         Packet pt = h.retPacket();
 
-        h.setCRC1(123456789);
-        int c = h.getCRC1();
-        // assertEquals((byte) 0xBB, (byte) pt.crc1[0]);
-        // assertEquals((byte) 0xBB, (byte) pt.crc1[1]);
-        // assertEquals((byte) 0xBB, (byte) pt.crc1[2]);
-        // assertEquals((byte) 0xBB, (byte) pt.crc1[3]);
+        h.setType(0x48);
+        h.setTR(0x48);
+        h.setWindow(0x48);
+        h.setSeqnum(0);
+        h.setLength(0);
+        h.setTimestamp(0);
+        h.setCRC1();
+        byte[] test = new byte[8];
+        test[0] = (byte)0x48;
+        test[1] = 0;
+        test[2] = 0;
+        test[3] = 0;
+        test[4] = 0;
+        test[5] = 0;
+        test[6] = 0;
+        test[7] = 0;
+
+        CRC32 c = new CRC32();
+        c.update(test);
+        ByteBuffer b = ByteBuffer.allocate(4);
+        b.putInt((int)c.getValue());
+        byte[] check = new byte[4];
+        check = b.array();
+
+        assertEquals((byte) check[0], (byte) pt.crc1[0]);
+        assertEquals((byte) check[1], (byte) pt.crc1[1]);
+        assertEquals((byte) check[2], (byte) pt.crc1[2]);
+        assertEquals((byte) check[3], (byte) pt.crc1[3]);
     }
 
     @Test
@@ -297,7 +321,7 @@ public class AppTest {
         Header h = new Header();
         Packet pt = h.retPacket();
 
-        h.setCRC2(0xBBBBBBBB);
+        h.setCRC2();
         assertEquals((byte) 0xBB, (byte) pt.crc2[0]);
         assertEquals((byte) 0xBB, (byte) pt.crc2[1]);
         assertEquals((byte) 0xBB, (byte) pt.crc2[2]);

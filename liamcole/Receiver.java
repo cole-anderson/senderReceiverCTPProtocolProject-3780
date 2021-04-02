@@ -103,7 +103,7 @@ public class Receiver {
             r.setSeqnum(read[1]);
             r.setLength(read[2] + read[3]);
             r.setTimestamp(read[4] + read[5] + read[6] + read[7]);
-            r.setCRC1(read[8] + read[9] + read[10] + read[11]);
+            r.setCRC1();
 
             byte[] temp = new byte[r.getLength()];
             for (int i = 0; i < r.getLength(); i++) {

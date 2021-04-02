@@ -192,7 +192,7 @@ public class Header {
   /*
    * CRC1 Field Setter&Getter:
    */
-  public void setCRC1(int crc) throws IOException {
+  public void setCRC1() throws IOException {
     CRC32 c = new CRC32();
     ByteArrayOutputStream temp = new ByteArrayOutputStream();
 
@@ -223,7 +223,7 @@ public class Header {
   /*
    * CRC2 Field Setter&Getter:
    */
-  public void setCRC2(int crc) {
+  public void setCRC2() {
     CRC32 c = new CRC32();
     c.update(p.payload);
 
