@@ -139,7 +139,7 @@ public class Sender {
         headerOne.setType(0x48);
         headerOne.setTR(0x48);
         headerOne.setWindow(0x48);
-        headerOne.setSeqnum(5); // need to do calculations still
+        headerOne.setSeqnum(0); // need to do calculations still
         headerOne.setLength(message.length()); // do error check for if over 512 convert to multiple packets
         headerOne.setTimestamp(55); // need to do creation still
         long lol = 3175023593L;
@@ -147,6 +147,7 @@ public class Sender {
         headerOne.setCRC1(v);// need to do calculations still
         headerOne.setPayload(message);
         // CRC2 TODO: COLE
+        headerOne.setCRC2(0xCBF43926);
 
         // Preparing Packet for Transmission:
         byte[] write = headerOne.returnCTPByteArray();
@@ -167,14 +168,14 @@ public class Sender {
             data = new DatagramPacket(write, write.length, addressInet, port);
             clientSock.send(data);
 
-            while (true) {
-                if (true) {
-                    clientSock.receive(rec);
-                    System.out.println("//" + rec.getData());
+            // while (true) {
+            // if (true) {
+            // clientSock.receive(rec);
+            // System.out.println("//" + rec.getData());
 
-                }
+            // }
 
-            }
+            // }
         } catch (IOException io) {
             io.printStackTrace();
         }

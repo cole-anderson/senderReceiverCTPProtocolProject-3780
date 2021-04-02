@@ -55,7 +55,6 @@ public class Header {
     byte[] retValue = null;
     int size = 0;
 
-    // Scuffed little hack (FIXME: HACKY HARD CODE)
     ByteArrayOutputStream temp = new ByteArrayOutputStream();
 
     byte tempType = (byte) ((byte) this.getType() << 6); // WORKS!
@@ -103,7 +102,7 @@ public class Header {
 
   // ********************************************************
   /*
-   * Type Field Setter&Getter: (TODO: DONE)
+   * Type Field Setter&Getter:
    */
   public void setType(int val) throws Exception {
     byte temp = (byte) (val >> 6);
@@ -121,7 +120,7 @@ public class Header {
 
   // ********************************************************
   /*
-   * TR Field Setter&Getter: (TODO: DONE)
+   * TR Field Setter&Getter:
    */
   public void setTR(int val) {
     System.out.println("///? " + val);
@@ -135,7 +134,7 @@ public class Header {
 
   // ********************************************************
   /*
-   * Window Field Setter&Getter: (TODO: DONE)
+   * Window Field Setter&Getter:
    */
   public void setWindow(int val) {
     // System.out.println("window" + val);
@@ -149,7 +148,7 @@ public class Header {
 
   // ********************************************************
   /*
-   * TSeqnum Field Setter&Getter: (TODO: DONE)
+   * TSeqnum Field Setter&Getter:
    */
   public byte getSeqnum() {
     return p.seqnum;
@@ -161,7 +160,7 @@ public class Header {
 
   // ********************************************************
   /*
-   * Length Field Setter&Getter: (TODO: DONE)
+   * Length Field Setter&Getter:
    */
   public void setLength(int len) {
     p.length[0] = (byte) (len >>> 8);
@@ -175,7 +174,7 @@ public class Header {
 
   // ********************************************************
   /*
-   * TimeStamp Field Setter&Getter: (TODO: DONE)
+   * TimeStamp Field Setter&Getter:
    */
   public void setTimestamp(int val) {
     p.timestamp[0] = (byte) (val >> 24 & 0xFF);
@@ -191,7 +190,7 @@ public class Header {
 
   // ********************************************************
   /*
-   * CRC1 Field Setter&Getter: (TODO: DONE)
+   * CRC1 Field Setter&Getter:
    */
   public void setCRC1(int crc) throws IOException {
     CRC32 c = new CRC32();
@@ -207,6 +206,7 @@ public class Header {
     temp.write(p.timestamp); // 4 byte
 
     c.update(temp.toByteArray());
+    System.out.println("THIS IS CRC1 SET:" + c);
 
     ByteBuffer b = ByteBuffer.allocate(4);
     b.putInt((int) c.getValue());
@@ -215,16 +215,17 @@ public class Header {
 
   public int getCRC1() {
     int convertedCRC1 = ByteBuffer.wrap(p.crc1).getInt();
+    System.out.println("THIS IS CRC1 GET:" + convertedCRC1);
     return convertedCRC1;
   }
 
   // ********************************************************
   /*
-   * CRC2 Field Setter&Getter: (TODO: DONE)
+   * CRC2 Field Setter&Getter:
    */
   public void setCRC2(int crc) {
     CRC32 c = new CRC32();
-    c.update(p.payload());
+    c.update(p.payload);
 
     ByteBuffer b = ByteBuffer.allocate(4);
     b.putInt((int) c.getValue());
@@ -238,12 +239,12 @@ public class Header {
 
   // ********************************************************
   /*
-   * Payload Field Setter&Getter: (TODO: DONE)
+   * Payload Field Setter&Getter:
    */
   public void setPayload(String pay) throws UnsupportedEncodingException {
     if (this.getTR() == 0) {
       p.payload = pay.getBytes();
-      // TODO ADD CHECK FOR IF OVER 512
+      // TODO: ADD CHECK FOR IF OVER 512
     } else {
       p.payload = null;
     }
