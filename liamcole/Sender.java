@@ -1,18 +1,16 @@
-// package liamcole; //(because why cant java just work right)
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-/*
-    CPSC 3780 Cole Anderson and Liam King
-    Checkpoint1 (SENDER)
-*/
+/**
+ * @author: Cole Anderson & Liam King. CPSC3780
+ */
 
 public class Sender {
 
@@ -115,6 +113,8 @@ public class Sender {
          * 
          * -> 0x48 01 0 01000 -> (base case for now)
          * 
+         * ->
+         * 
          * (0) TYPE|TR|WINDOW
          * 
          * Type 1: Data Type 2: ACK(NOT REALLY APPLICABLE SENDER SIDE) Type 3: NACK
@@ -137,9 +137,9 @@ public class Sender {
          */
 
         // Setting Header Parameters:
-        headerOne.setType(0x48);
-        headerOne.setTR(0x48);
-        headerOne.setWindow(0x48);
+        headerOne.setType(0xC8);
+        headerOne.setTR(0xC8);
+        headerOne.setWindow(0xC8);
         headerOne.setSeqnum(0); // need to do calculations still
         headerOne.setLength(message.length()); // do error check for if over 512 convert to multiple packets
         headerOne.setTimestamp(55); // need to do creation still
@@ -150,25 +150,38 @@ public class Sender {
 
         // Preparing Packet for Transmission:
         byte[] write = headerOne.returnCTPByteArray();
-        byte[] read = null;
 
-        // read
-
-        // InetAddress conversions
+        /**
+         * Convert ip Address to inet address for use in datagram sockets
+         */
         try {
             addressInet = InetAddress.getByName(address);
         } catch (UnknownHostException uh) {
             uh.printStackTrace();
         }
 
-        // Sockets
+        /**
+         * Socket try-catch
+         */
         try {
-            clientSock = new DatagramSocket(port);// doesnt require port at this time but packet does
+            /**
+             * Following try-catch allows for both peer to peer(different ip address's) and
+             * localhost communication to be enabled without errors ending the program
+             */
+            // clientSock = new DatagramSocket();
+            try {
+                clientSock = new DatagramSocket(port);
+                System.out.println("--PEER TO PEER MODE ENABLED--");
+            } catch (BindException be) {
+                System.out.println(be);
+                System.out.println("--LOCALHOST MODE ENABLED--");
+                clientSock = new DatagramSocket();
+            }
+
             data = new DatagramPacket(write, write.length, addressInet, port);
             clientSock.send(data);
-
-            System.out.println("Waiting for 2 sec");
-            Thread.sleep(2000);
+            System.out.println("Waiting for 5 sec");
+            Thread.sleep(5000);
             System.out.println("Done waiting");
 
             clientSock.receive(acknowledgement);
@@ -176,14 +189,6 @@ public class Sender {
             byte[] readack = acknowledgement.getData();
             System.out.println("First byte of ack: " + readack[0]);
 
-            // while (true) {
-            // if (true) {
-            // clientSock.receive(rec);
-            // System.out.println("//" + rec.getData());
-
-            // }
-
-            // }
         } catch (IOException io) {
             io.printStackTrace();
         }

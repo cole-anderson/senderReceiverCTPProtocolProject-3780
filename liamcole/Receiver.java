@@ -36,7 +36,7 @@ public class Receiver {
             if (args.length == 0) {
                 System.out.println("No port specified. Exiting Program");
                 System.exit(0);
-            } else if (args.length > 2) {
+            } else if (args.length >= 2) {
                 System.out.println("Incorrect Commandline Input. Exiting Program");
                 System.exit(0);
             }
@@ -85,16 +85,20 @@ public class Receiver {
         // Initializations
         DatagramSocket serverSock = null;
         DatagramPacket receivedData = null;
-        byte[] buff = new byte[65536];
+        byte[] buff = new byte[12 + 512 + 4]; // First 12 bytes top header, 512 max payload, 4 bytes CRC2
 
         try {
-            // Received and Translate information
+            // Socket OPEN:
             serverSock = new DatagramSocket(port);
+            // while (true) {
+            // System.out.print("Waiting on packet...");
+
+            /// 1) Receives packet:
             receivedData = new DatagramPacket(buff, buff.length);
             serverSock.receive(receivedData);
             byte[] read = receivedData.getData();
 
-            // building header from receieved data
+            /// 2) Re-Builds header-info in packet using setters:
             Header r = new Header();
             r.setType((int) read[0]);
             r.setTR((int) read[0]);
@@ -123,35 +127,48 @@ public class Receiver {
                 writeFile(fileName, output);
             }
 
-            Header s = new Header(); // create header for acknowledgement
+            /// 3) Create/Set acknowledgment packet:
+            Header reply = new Header();
 
             if (r.getTR() == 1) { // if TR is 1 we send a NACK else we send ACK
-                s.setType(0xD5); // 11010101
-                s.setTR(0xD5);
-                s.setWindow(0xD5);
+                reply.setType(0xD5); // 11010101
+                reply.setTR(0xD5);
+                reply.setWindow(0xD5);
             } else {
-                s.setType(0x95); // 10010101
-                s.setTR(0x95);
-                s.setWindow(0x95);
+                reply.setType(0x95); // 10010101
+                reply.setTR(0x95);
+                reply.setWindow(0x95);
             }
-            s.setSeqnum(0);
-            s.setLength(0);
+            reply.setSeqnum(0);
+            reply.setLength(0);
 
+            /// 4) Sends acknowledgement packet:
             try {
-
                 InetAddress from = receivedData.getAddress();
                 // get address that data was received from so we know where to send
                 // acknowledgement
-                DatagramPacket ack = new DatagramPacket(s.ackknowledgement(), s.ackknowledgement().length, from, port);
+                DatagramPacket ack = new DatagramPacket(reply.ackknowledgement(), reply.ackknowledgement().length, from,
+                        port);
                 // create packet for ackknowledgement
                 serverSock.send(ack); // send acknowledgement back to sender
 
             } catch (IOException io) {
                 io.printStackTrace();
             }
+            receivedData = null;
+            // } // ends the while loop
 
         } catch (IOException io) {
             io.printStackTrace();
         }
+    }
+
+    /**
+     * lazy print function:
+     * 
+     * @param statement
+     */
+    public static void print(String statement) {
+        System.out.println(statement);
     }
 }

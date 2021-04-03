@@ -41,7 +41,7 @@ public class AppTest {
 
         h.setTimestamp(3);
 
-        h.setCRC1(3);
+        // h.setCRC1(3);
 
         h.setPayload(message);
 
@@ -65,7 +65,7 @@ public class AppTest {
 
         in.setTimestamp(hey[4] + hey[5] + hey[6] + hey[7]);
 
-        in.setCRC1(hey[8] + hey[9] + hey[10] + hey[11]);
+        // in.setCRC1(hey[8] + hey[9] + hey[10] + hey[11]);
 
         int index = 0;
         for (int i = 0; i < in.getLength(); i++) {
@@ -276,7 +276,7 @@ public class AppTest {
         h.setTimestamp(0);
         h.setCRC1();
         byte[] test = new byte[8];
-        test[0] = (byte)0x48;
+        test[0] = (byte) 0x48;
         test[1] = 0;
         test[2] = 0;
         test[3] = 0;
@@ -288,7 +288,7 @@ public class AppTest {
         CRC32 c = new CRC32();
         c.update(test);
         ByteBuffer b = ByteBuffer.allocate(4);
-        b.putInt((int)c.getValue());
+        b.putInt((int) c.getValue());
         byte[] check = new byte[4];
         check = b.array();
 
