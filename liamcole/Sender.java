@@ -96,7 +96,7 @@ public class Sender {
         InetAddress addressInet = null;
 
         // For ACK.NACK:
-        byte[] recBuf = new byte[65536];
+        byte[] recBuf = new byte[1];
         DatagramPacket acknowledgement;
         acknowledgement = new DatagramPacket(recBuf, recBuf.length);
 
@@ -137,9 +137,9 @@ public class Sender {
          */
 
         // Setting Header Parameters:
-        headerOne.setType(0xC8);
-        headerOne.setTR(0xC8);
-        headerOne.setWindow(0xC8);
+        headerOne.setType(0x48);
+        headerOne.setTR(0x48);
+        headerOne.setWindow(0x48);
         headerOne.setSeqnum(0); // need to do calculations still
         headerOne.setLength(message.length()); // do error check for if over 512 convert to multiple packets
         headerOne.setTimestamp(55); // need to do creation still
@@ -188,6 +188,11 @@ public class Sender {
             System.out.println("Recieved ack");
             byte[] readack = acknowledgement.getData();
             System.out.println("First byte of ack: " + readack[0]);
+            Header a = new Header();
+            a.setType(readack[0]);
+            a.setTR(readack[0]);
+            a.setWindow(readack[0]);
+            System.out.println("our ack is" + a.getType());
 
         } catch (IOException io) {
             io.printStackTrace();

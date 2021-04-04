@@ -147,10 +147,19 @@ public class Receiver {
                 InetAddress from = receivedData.getAddress();
                 // get address that data was received from so we know where to send
                 // acknowledgement
+
+                System.out.println("what is here?" + reply.ackknowledgement());
+
                 DatagramPacket ack = new DatagramPacket(reply.ackknowledgement(), reply.ackknowledgement().length, from,
                         port);
                 // create packet for ackknowledgement
+                System.out.println("///this send?");
                 serverSock.send(ack); // send acknowledgement back to sender
+                System.out.println("sleep 10000");
+                Thread.sleep(10000);
+                System.out.println("b4");
+                // serverSock.receive(receivedData);
+                System.out.println("aftr");
 
             } catch (IOException io) {
                 io.printStackTrace();
