@@ -131,16 +131,18 @@ public class Receiver {
             Header reply = new Header();
 
             if (r.getTR() == 1) { // if TR is 1 we send a NACK else we send ACK
-                reply.setType(0xD5); // 11010101
-                reply.setTR(0xD5);
-                reply.setWindow(0xD5);
+                reply.setType(0xC1); // 11000001
+                reply.setTR(0xC1);
+                reply.setWindow(0xC1);
             } else {
-                reply.setType(0x95); // 10010101
-                reply.setTR(0x95);
-                reply.setWindow(0x95);
+                reply.setType(0x41); // 10000001
+                reply.setTR(0x41);
+                reply.setWindow(0x41);
             }
-            reply.setSeqnum(0);
+            reply.setSeqnum(1);
             reply.setLength(0);
+            reply.setCRC1();
+
 
             /// 4) Sends acknowledgement packet:
             try {

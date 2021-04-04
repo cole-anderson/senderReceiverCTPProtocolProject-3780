@@ -137,9 +137,9 @@ public class Sender {
          */
 
         // Setting Header Parameters:
-        headerOne.setType(0x48);
-        headerOne.setTR(0x48);
-        headerOne.setWindow(0x48);
+        headerOne.setType(0x41);
+        headerOne.setTR(0x41);
+        headerOne.setWindow(0x41);
         headerOne.setSeqnum(0); // need to do calculations still
         headerOne.setLength(message.length()); // do error check for if over 512 convert to multiple packets
         headerOne.setTimestamp(55); // need to do creation still
@@ -180,8 +180,8 @@ public class Sender {
 
             data = new DatagramPacket(write, write.length, addressInet, port);
             clientSock.send(data);
-            System.out.println("Waiting for 5 sec");
-            Thread.sleep(5000);
+            System.out.println("Waiting for 2 sec");
+            Thread.sleep(2000);
             System.out.println("Done waiting");
 
             clientSock.receive(acknowledgement);
@@ -189,6 +189,8 @@ public class Sender {
             byte[] readack = acknowledgement.getData();
             System.out.println("First byte of ack: " + readack[0]);
             Header a = new Header();
+            byte b = readack[0];
+            System.out.println(Integer.toBinaryString((b & 0xFF) + 0x100).substring(1));
             a.setType(readack[0]);
             a.setTR(readack[0]);
             a.setWindow(readack[0]);
