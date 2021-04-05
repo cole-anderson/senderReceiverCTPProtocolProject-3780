@@ -180,11 +180,12 @@ public class Sender {
 
             data = new DatagramPacket(write, write.length, addressInet, port);
             clientSock.send(data);
-            System.out.println("Waiting for 2 sec");
-            Thread.sleep(2000);
-            System.out.println("Done waiting");
+            // System.out.println("Waiting for 2 sec");
+            // Thread.sleep(2000);
+            // System.out.println("Done waiting");
 
             clientSock.receive(acknowledgement);
+
             System.out.println("Recieved ack");
             byte[] readack = acknowledgement.getData();
             System.out.println("First byte of ack: " + readack[0]);

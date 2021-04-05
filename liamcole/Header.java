@@ -1,6 +1,5 @@
 // package liamcole; //(because why cant java just work right)
 
-import java.util.*;
 import java.util.zip.CRC32;
 import java.nio.ByteBuffer;
 import java.io.ByteArrayOutputStream;
@@ -53,7 +52,6 @@ public class Header {
    */
   public byte[] returnCTPByteArray() throws IOException {
     byte[] retValue = null;
-    int size = 0;
 
     ByteArrayOutputStream temp = new ByteArrayOutputStream();
 
@@ -64,7 +62,7 @@ public class Header {
     byte[] addTo = new byte[] { (byte) (tempType + tempTr + tempWindow) }; //
 
     temp.write(addTo); // 1 byte
-    temp.write(p.seqnum); // 2byte
+    temp.write(p.seqnum); // 1 byte
     temp.write(p.length); // 2 byte
     temp.write(p.timestamp); // 4 byte
     temp.write(p.crc1); // 4 byte

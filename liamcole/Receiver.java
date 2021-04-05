@@ -143,25 +143,17 @@ public class Receiver {
             reply.setLength(0);
             reply.setCRC1();
 
-
             /// 4) Sends acknowledgement packet:
             try {
+                // Sets the acknowledgment packet to send back to sender(ip + port)
                 InetAddress from = receivedData.getAddress();
-                // get address that data was received from so we know where to send
-                // acknowledgement
-
-                System.out.println("what is here?" + reply.ackknowledgement());
+                int recPort = receivedData.getPort(); // accounts for if localhost
 
                 DatagramPacket ack = new DatagramPacket(reply.ackknowledgement(), reply.ackknowledgement().length, from,
-                        port);
-                // create packet for ackknowledgement
-                System.out.println("///this send?");
+                        recPort);
+
+                System.out.println("==SENDING ACK==");
                 serverSock.send(ack); // send acknowledgement back to sender
-                System.out.println("sleep 10000");
-                Thread.sleep(10000);
-                System.out.println("b4");
-                // serverSock.receive(receivedData);
-                System.out.println("aftr");
 
             } catch (IOException io) {
                 io.printStackTrace();
