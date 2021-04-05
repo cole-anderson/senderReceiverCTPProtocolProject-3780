@@ -1,5 +1,6 @@
 // package liamcole; //(because why cant java just work right)
 
+import java.util.Arrays;
 import java.util.zip.CRC32;
 import java.nio.ByteBuffer;
 import java.io.ByteArrayOutputStream;
@@ -36,9 +37,10 @@ public class Header {
     byte[] addTo = new byte[] { (byte) (tempType + tempTr + tempWindow) };
 
     temp.write(addTo);
-    temp.write(p.seqnum); // 2byte
+    temp.write(p.seqnum); // 2 byte
     temp.write(p.length); // 2 byte
     temp.write(p.timestamp); // 4 byte
+    temp.write(p.crc1);
 
     acknowledgementP = temp.toByteArray();
 
@@ -121,9 +123,7 @@ public class Header {
    * TR Field Setter&Getter:
    */
   public void setTR(int val) {
-    System.out.println("///? " + val);
     p.tr = (byte) (val >>> 5 & 1);
-    System.out.println("///$" + p.tr);
   }
 
   public byte getTR() {
@@ -204,7 +204,6 @@ public class Header {
     temp.write(p.timestamp); // 4 byte
 
     c.update(temp.toByteArray());
-    System.out.println("THIS IS CRC1 SET:" + c);
 
     ByteBuffer b = ByteBuffer.allocate(4);
     b.putInt((int) c.getValue());
@@ -213,7 +212,6 @@ public class Header {
 
   public int getCRC1() {
     int convertedCRC1 = ByteBuffer.wrap(p.crc1).getInt();
-    System.out.println("THIS IS CRC1 GET:" + convertedCRC1);
     return convertedCRC1;
   }
 
@@ -238,14 +236,33 @@ public class Header {
   // ********************************************************
   /*
    * Payload Field Setter&Getter:
+   * 
+   * This function both sets payload and edits the current message buffer in such
+   * a way that allows for multiple packets to be created when the buffer is
+   * larger than 512 bytes
    */
-  public void setPayload(String pay) throws UnsupportedEncodingException {
+  public byte[] setPayload(byte[] buffer) throws UnsupportedEncodingException {
+    byte[] nextBuffer = null;
+
     if (this.getTR() == 0) {
-      p.payload = pay.getBytes();
-      // TODO: ADD CHECK FOR IF OVER 512
+      /**
+       * (1) If buffer < 512 last packet
+       * 
+       * If buffer >=512 still need more packets after current
+       */
+      if (buffer.length < 512) {
+        p.payload = buffer;
+        nextBuffer = null; // final packet
+      } else if (buffer.length >= 512) {
+        p.payload = Arrays.copyOfRange(buffer, 0, 511);
+        nextBuffer = Arrays.copyOfRange(buffer, 512, buffer.length);
+      }
+
     } else {
       p.payload = null;
+      nextBuffer = buffer;
     }
+    return nextBuffer;
   }
 
   public String getPayload() {

@@ -4,8 +4,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.io.ByteArrayOutputStream;
 import java.net.DatagramSocket;
+import java.util.Arrays;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /*
     CPSC 3780 Cole Anderson and Liam King
@@ -86,83 +90,110 @@ public class Receiver {
         DatagramSocket serverSock = null;
         DatagramPacket receivedData = null;
         byte[] buff = new byte[12 + 512 + 4]; // First 12 bytes top header, 512 max payload, 4 bytes CRC2
-
+        ByteArrayOutputStream pay = new ByteArrayOutputStream();
+        long paylen = 0;
         try {
-            // Socket OPEN:
             serverSock = new DatagramSocket(port);
-            // while (true) {
-            // System.out.print("Waiting on packet...");
+        } catch (IOException io) {
+            io.printStackTrace();
+        }
 
-            /// 1) Receives packet:
-            receivedData = new DatagramPacket(buff, buff.length);
-            serverSock.receive(receivedData);
-            byte[] read = receivedData.getData();
-
-            /// 2) Re-Builds header-info in packet using setters:
-            Header r = new Header();
-            r.setType((int) read[0]);
-            r.setTR((int) read[0]);
-            r.setWindow((int) read[0]);
-
-            r.setSeqnum(read[1]);
-            r.setLength(read[2] + read[3]);
-            r.setTimestamp(read[4] + read[5] + read[6] + read[7]);
-            r.setCRC1();
-
-            byte[] temp = new byte[r.getLength()];
-            for (int i = 0; i < r.getLength(); i++) {
-                temp[i] = read[12 + i];
-            }
-            String p = new String(temp);
-            r.setPayload(p);
-
-            String output = r.getPayload();
-
-            // if not file in command line args
-            if (fileName == "") {
-                System.out.println(output);
-            }
-            // else file is specified in command line args
-            else {
-                writeFile(fileName, output);
-            }
-
-            /// 3) Create/Set acknowledgment packet:
-            Header reply = new Header();
-
-            if (r.getTR() == 1) { // if TR is 1 we send a NACK else we send ACK
-                reply.setType(0xC1); // 11000001
-                reply.setTR(0xC1);
-                reply.setWindow(0xC1);
-            } else {
-                reply.setType(0x41); // 10000001
-                reply.setTR(0x41);
-                reply.setWindow(0x41);
-            }
-            reply.setSeqnum(1);
-            reply.setLength(0);
-            reply.setCRC1();
-
-            /// 4) Sends acknowledgement packet:
+        do {
             try {
-                // Sets the acknowledgment packet to send back to sender(ip + port)
-                InetAddress from = receivedData.getAddress();
-                int recPort = receivedData.getPort(); // accounts for if localhost
+                // Socket OPEN:
+                // while (true) {
+                // System.out.print("Waiting on packet...");
 
-                DatagramPacket ack = new DatagramPacket(reply.ackknowledgement(), reply.ackknowledgement().length, from,
-                        recPort);
+                /// 1) Receives packet:
+                receivedData = new DatagramPacket(buff, buff.length);
+                serverSock.receive(receivedData);
+                byte[] read = receivedData.getData();
 
-                System.out.println("==SENDING ACK==");
-                serverSock.send(ack); // send acknowledgement back to sender
+                /// 2) Re-Builds header-info in packet using setters:
+                Header r = new Header();
+                r.setType((int) read[0]);
+                r.setTR((int) read[0]);
+                r.setWindow((int) read[0]);
+
+                r.setSeqnum(read[1]);
+
+                byte[] templen = new byte[2];
+                templen[0] = read[2];
+                templen[1] = read[3];
+                ByteBuffer bb = ByteBuffer.wrap(templen);
+                bb.order(ByteOrder.BIG_ENDIAN);
+                Short len = bb.getShort();
+                r.setLength(len);
+
+                byte[] temptime = new byte[4];
+                temptime[0] = read[4];
+                temptime[1] = read[5];
+                temptime[2] = read[6];
+                temptime[3] = read[7];
+                ByteBuffer bbt = ByteBuffer.wrap(temptime);
+                bbt.order(ByteOrder.BIG_ENDIAN);
+                int timestamp = bbt.getInt();
+                r.setTimestamp(timestamp);
+                r.setCRC1();
+
+                byte[] temp = new byte[len];
+                for (int i = 0; i < r.getLength(); i++) {
+                    temp[i] = read[12 + i];
+                }
+                r.setPayload(temp);
+                paylen = len;
+                pay.write(r.p.payload);
+
+                System.out.println("WHAT IS PAYLOAD: " + r.getPayload());
+
+                /// 3) Create/Set acknowledgment packet:
+                Header reply = new Header();
+
+                if (r.getTR() == 1) { // if TR is 1 we send a NACK else we send ACK
+                    reply.setType(0xC1); // 11000001
+                    reply.setTR(0xC1);
+                    reply.setWindow(0xC1);
+                    reply.setSeqnum(r.getSeqnum());
+                } else {
+                    reply.setType(0x81); // 10000001
+                    reply.setTR(0x81);
+                    reply.setWindow(0x81);
+                    reply.setSeqnum(r.getSeqnum() + 1);
+                }
+                reply.setTimestamp(timestamp);
+                reply.setLength(0);
+                reply.setCRC1();
+
+                /// 4) Sends acknowledgement packet:
+                try {
+                    // Sets the acknowledgment packet to send back to sender(ip + port)
+                    InetAddress from = receivedData.getAddress();
+                    int recPort = receivedData.getPort(); // accounts for if localhost
+
+                    DatagramPacket ack = new DatagramPacket(reply.ackknowledgement(), reply.ackknowledgement().length,
+                            from, recPort);
+
+                    System.out.println("==SENDING ACK==");
+                    serverSock.send(ack); // send acknowledgement back to sender
+
+                } catch (IOException io) {
+                    io.printStackTrace();
+                }
+                receivedData = null;
+                // } // ends the while loop
 
             } catch (IOException io) {
                 io.printStackTrace();
             }
-            receivedData = null;
-            // } // ends the while loop
-
-        } catch (IOException io) {
-            io.printStackTrace();
+            System.out.print("Payload Length: " + paylen);
+        } while (paylen != 0);
+        // if not file in command line args
+        if (fileName == "") {
+            System.out.println(pay.toString());
+        }
+        // else file is specified in command line args
+        else {
+            writeFile(fileName, pay.toString());
         }
     }
 
