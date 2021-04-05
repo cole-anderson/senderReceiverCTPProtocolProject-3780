@@ -100,10 +100,6 @@ public class Receiver {
 
         do {
             try {
-                // Socket OPEN:
-                // while (true) {
-                // System.out.print("Waiting on packet...");
-
                 /// 1) Receives packet:
                 receivedData = new DatagramPacket(buff, buff.length);
                 serverSock.receive(receivedData);
@@ -144,8 +140,6 @@ public class Receiver {
                 paylen = len;
                 pay.write(r.p.payload);
 
-                System.out.println("WHAT IS PAYLOAD: " + r.getPayload());
-
                 /// 3) Create/Set acknowledgment packet:
                 Header reply = new Header();
 
@@ -180,13 +174,13 @@ public class Receiver {
                     io.printStackTrace();
                 }
                 receivedData = null;
-                // } // ends the while loop
 
             } catch (IOException io) {
                 io.printStackTrace();
             }
-            System.out.print("Payload Length: " + paylen);
-        } while (paylen != 0);
+        } while (paylen != 0); // receive packets until we receive the final packet with no payload to indicate
+                               // transfer end
+
         // if not file in command line args
         if (fileName == "") {
             System.out.println(pay.toString());

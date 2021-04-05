@@ -21,75 +21,6 @@ public class AppTest {
      * @throws Exception
      * 
      */
-    @Test
-    public void checkPoint3() throws Exception {
-
-        Header h = new Header();
-        String message = "hello";
-        // 01|2|3 7|
-        // 01|0|01000
-        // 01001000
-        // 72
-        h.setType(0x48);
-        h.setTR(0x48);
-        h.setWindow(0x48);
-
-        h.setSeqnum(3);
-
-        h.setLength(message.length());
-
-        h.setTimestamp(3);
-
-        // h.setCRC1(3);
-
-        h.setPayload(message);
-
-        Header in = new Header();
-
-        byte[] hey = h.returnCTPByteArray(); // here
-
-        System.out.println("what is hey[0]::" + hey[0]);
-        // System.out.println("FIX" + hey[1]);
-
-        int testV = (int) hey[0];
-        System.out.println("|" + testV);
-
-        in.setType((int) hey[0]);
-        in.setTR((int) hey[0]);
-        in.setWindow((int) hey[0]);
-
-        in.setSeqnum(hey[1]);
-
-        in.setLength(hey[2] + hey[3]);
-
-        in.setTimestamp(hey[4] + hey[5] + hey[6] + hey[7]);
-
-        // in.setCRC1(hey[8] + hey[9] + hey[10] + hey[11]);
-
-        int index = 0;
-        for (int i = 0; i < in.getLength(); i++) {
-            index++;
-        }
-        byte[] payloadArray = Arrays.copyOfRange(hey, 12, 12 + index);
-        String pay = new String(payloadArray);
-        in.setPayload(pay);
-
-        // Tests:
-        assertEquals(1, in.getType());
-        assertEquals(0, in.getTR());
-        assertEquals(8, in.getWindow());
-
-        assertEquals(3, in.getSeqnum());
-
-        assertEquals(5, in.getLength());
-
-        assertEquals(3, in.getTimestamp());
-
-        assertEquals(3, in.getCRC1());
-
-        assertEquals("hello", in.getPayload());
-
-    }
 
     // +++++++++++++++++++++++++++++++++
 
@@ -313,18 +244,21 @@ public class AppTest {
     }
 
     @Test
-    public void TestsetCRC2() {
+    public void TestsetCRC2() throws UnsupportedEncodingException {
         System.out.println("TestsetCRC2");
 
         // Initializations
         Header h = new Header();
         Packet pt = h.retPacket();
 
+        String s = "testing";
+        byte[] b = s.getBytes();
+        h.setPayload(b);
         h.setCRC2();
-        assertEquals((byte) 0xBB, (byte) pt.crc2[0]);
-        assertEquals((byte) 0xBB, (byte) pt.crc2[1]);
-        assertEquals((byte) 0xBB, (byte) pt.crc2[2]);
-        assertEquals((byte) 0xBB, (byte) pt.crc2[3]);
+        assertEquals((byte) 0xE8, (byte) pt.crc2[0]);
+        assertEquals((byte) 0xF3, (byte) pt.crc2[1]);
+        assertEquals((byte) 0x5A, (byte) pt.crc2[2]);
+        assertEquals((byte) 0x06, (byte) pt.crc2[3]);
     }
 
     @Test
@@ -344,12 +278,14 @@ public class AppTest {
 
     @Test
     public void TestsetPayload() throws UnsupportedEncodingException {
+        String s = "hello";
+        byte[] b = s.getBytes();
         System.out.println("TestsetPayload");
 
         Header h = new Header();
         Packet pt = h.retPacket();
 
-        h.setPayload("hello");
+        h.setPayload(b);
         assertEquals(0x68, pt.payload[0]);
         assertEquals(0x65, pt.payload[1]);
         assertEquals(0x6c, pt.payload[2]);

@@ -73,17 +73,7 @@ public class Header {
       // Accounts for optional crc2
       temp.write(p.crc2);
     }
-
     retValue = temp.toByteArray();
-
-    // funky
-    System.out.println("//Size of packet:: " + retValue.length);
-    System.out.println("what retValue[0] is now::" + retValue[0]);
-    System.out.println("what retValue[1] is now::" + retValue[1]);
-    System.out.println("what retValue[2] is now::" + retValue[2]);
-    System.out.println("what retValue[3] is now::" + retValue[3]);
-    System.out.println("what retValue[4] is now::" + retValue[4]);
-
     return retValue;
   }
 

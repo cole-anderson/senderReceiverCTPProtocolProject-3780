@@ -109,6 +109,7 @@ public class Sender {
         InetAddress addressInet = null;
         Header headerOne;
         Boolean running = true;
+        int seq = 0;
 
         // ACK&NACK INITIALIZATION:
         byte[] recBuf = new byte[1]; // fixme:
@@ -177,7 +178,7 @@ public class Sender {
             headerOne.setType(0x41);
             headerOne.setTR(0x41);
             headerOne.setWindow(0x41);
-            headerOne.setSeqnum(0);
+            headerOne.setSeqnum(seq);
             if (messageBuffer.length < 512) {
                 headerOne.setLength(messageBuffer.length);// if current payload is less then max 512 bytes
                 running = false;// will end loop after this transmission
@@ -206,18 +207,15 @@ public class Sender {
 
                 clientSock.receive(acknowledgement);
 
-                System.out.println("Recieved ack");
+                System.out.println("==Recieved ack==");
                 byte[] readack = acknowledgement.getData();
-                System.out.println("First byte of ack: " + readack[0]);
+
                 Header a = new Header();
                 byte b = readack[0];
-                System.out.println(Integer.toBinaryString((b & 0xFF) + 0x100).substring(1));
                 a.setType(Math.abs(readack[0]));
                 a.setTR(readack[0]);
                 a.setWindow(readack[0]);
-                System.out.println("our ack is" + a.getType());
-                System.out.println("our ack is" + a.getTR());
-                System.out.println("our ack is" + a.getWindow());
+                seq++;
 
             } catch (IOException io) {
                 io.printStackTrace();
@@ -230,19 +228,16 @@ public class Sender {
             emptyEnd.setType(0x41);
             emptyEnd.setTR(0x41);
             emptyEnd.setWindow(0x41);
-            emptyEnd.setSeqnum(0);
+            emptyEnd.setSeqnum(seq);
             emptyEnd.setLength(0);
             emptyEnd.setTimestamp(55);
             emptyEnd.setCRC1();
-            byte[] empty = new byte[1];
-            empty[0] = 0;
-            emptyEnd.setPayload(empty);
-            emptyEnd.setCRC2();
 
-            byte[] finalPacket = emptyEnd.returnCTPByteArray();
+            byte[] finalPacket = emptyEnd.ackknowledgement();
             DatagramPacket end = new DatagramPacket(finalPacket, finalPacket.length, addressInet, port);
             clientSock.send(end);
-
+            clientSock.receive(acknowledgement);
+            System.out.println("==Recieved final ack==");
             clientSock.close();// CLOSE SOCKET
         } catch (IOException io) {
             io.printStackTrace();
