@@ -96,7 +96,7 @@ public class Sender {
         InetAddress addressInet = null;
 
         // For ACK.NACK:
-        byte[] recBuf = new byte[1];
+        byte[] recBuf = new byte[1]; // fixme:
         DatagramPacket acknowledgement;
         acknowledgement = new DatagramPacket(recBuf, recBuf.length);
 
@@ -192,10 +192,12 @@ public class Sender {
             Header a = new Header();
             byte b = readack[0];
             System.out.println(Integer.toBinaryString((b & 0xFF) + 0x100).substring(1));
-            a.setType(readack[0]);
+            a.setType(Math.abs(readack[0]));
             a.setTR(readack[0]);
             a.setWindow(readack[0]);
             System.out.println("our ack is" + a.getType());
+            System.out.println("our ack is" + a.getTR());
+            System.out.println("our ack is" + a.getWindow());
 
         } catch (IOException io) {
             io.printStackTrace();
