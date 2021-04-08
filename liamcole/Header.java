@@ -96,11 +96,11 @@ public class Header {
    */
   public void setType(int val) throws Exception {
     byte temp = (byte) (val >> 6);
-    // System.out.println("debugsettype" + temp);
+    System.out.println("///debugsettype: " + temp);
     if (temp != 0) {
       p.type = temp;
     } else {
-      throw new Exception("type invalid setType"); // fix later
+      // throw new Exception("type invalid setType"); // fix later
     }
   }
 
@@ -114,6 +114,7 @@ public class Header {
    */
   public void setTR(int val) {
     p.tr = (byte) (val >>> 5 & 1);
+    System.out.println("///debugsetr: " + (int) p.tr);
   }
 
   public byte getTR() {

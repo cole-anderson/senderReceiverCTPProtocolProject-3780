@@ -175,6 +175,7 @@ public class Sender {
              */
 
             // Setting Header Parameters:
+            System.out.println("==Preparing Packet==\n");
             headerOne.setType(0x41);
             headerOne.setTR(0x41);
             headerOne.setWindow(0x41);
@@ -199,23 +200,28 @@ public class Sender {
             try {
 
                 data = new DatagramPacket(write, write.length, addressInet, port);
+                System.out.println("==Sending Packet==\n");
                 clientSock.send(data);
 
-                System.out.println("==Waiting for 2 sec==");
-                Thread.sleep(2000);
+                // System.out.println("==Waiting for 2 sec==");
+                // Thread.sleep(2000);
                 System.out.println("==Done waiting==");
 
                 clientSock.receive(acknowledgement);
+                System.out.println("==Recieved Packet Back==\n");
 
-                System.out.println("==Recieved ack==");
                 byte[] readack = acknowledgement.getData();
 
                 Header a = new Header();
-                byte b = readack[0];
                 a.setType(Math.abs(readack[0]));
                 a.setTR(readack[0]);
                 a.setWindow(readack[0]);
-                seq++;
+
+                if (a.getType() == (byte) 2) {
+                    System.out.println("[ACK RECEIVED]\n");
+                    seq++;
+                } else if (a.getType() == (byte) 3)
+                    System.out.println("[NACK RECEIVED]\n");
 
             } catch (IOException io) {
                 io.printStackTrace();
