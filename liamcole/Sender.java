@@ -279,11 +279,12 @@ public class Sender {
                     message = messageMode(); // FIXME: HERE
                     if (message == "") {
                         usermode = false;
+                        running = false;
                         break;
                     }
                     messageBuffer = createBuffer(message);
+                    System.out.println("///what is message buffer " + messageBuffer);
                 }
-
                 System.out.println("==Preparing Packet==\n");
                 headerOne.setType(0x41);
                 headerOne.setTR(0x41);

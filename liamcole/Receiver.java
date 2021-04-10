@@ -88,7 +88,6 @@ public class Receiver {
         } catch (IOException io) {
             io.printStackTrace();
         }
-
     }
 
     /**
@@ -147,7 +146,10 @@ public class Receiver {
                     temp[i] = read[12 + i];
                 }
                 r.setPayload(temp);
-                System.out.println("**PAYLOAD RECEIVED**: " + r.getPayload());
+                // Check for if payload exists or if NACK / FINAL ACK
+                if (!r.getPayload().equals(""))
+                    System.out.println("**PAYLOAD RECEIVED**: " + r.getPayload());
+
                 paylen = len;
                 pay.write(r.p.payload);
 
