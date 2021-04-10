@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.io.ByteArrayOutputStream;
 import java.net.DatagramSocket;
-import java.util.Arrays;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -60,7 +59,7 @@ public class Receiver {
      */
     static int generateTime() {
         int time = (int) (new Date(System.currentTimeMillis()).getTime() / 1000);
-        System.out.println("//debug generateTime:" + time);
+        // System.out.println("///debug generateTime:" + time);
         return time;
     }
 
@@ -68,14 +67,13 @@ public class Receiver {
      * writeFile: writes to textfile
      */
     static void writeFile(String fileName, String write) {
-        System.out.println("DEBUG1:" + write);
         // CREATE FILE OR ALERT OF OVERWRITE
         try {
             File myFile = new File(fileName);
             if (myFile.createNewFile()) {
 
             } else {
-                System.out.println("FILE EXISTS. OVERWRITING");// FIX LATER
+                System.out.println("--FILE EXISTS OVERWRITING--");
             }
 
         } catch (IOException io) {
@@ -149,7 +147,7 @@ public class Receiver {
                     temp[i] = read[12 + i];
                 }
                 r.setPayload(temp);
-                System.out.println("PAYLOAD RECEIVED: " + r.getPayload());
+                System.out.println("**PAYLOAD RECEIVED**: " + r.getPayload());
                 paylen = len;
                 pay.write(r.p.payload);
 
@@ -180,7 +178,7 @@ public class Receiver {
                     DatagramPacket ack = new DatagramPacket(reply.ackknowledgement(), reply.ackknowledgement().length,
                             from, recPort);
 
-                    System.out.println("==SENDING ACK==");
+                    System.out.println("==SENDING ACK==\n");
                     serverSock.send(ack); // send acknowledgement back to sender
 
                 } catch (IOException io) {
@@ -200,17 +198,8 @@ public class Receiver {
         }
         // else file is specified in command line args
         else {
-            System.out.println("WRITING MESSAGELOG TO FILE");
+            System.out.println("WRITING MESSAGELOG TO FILE...");
             writeFile(fileName, pay.toString());
         }
-    }
-
-    /**
-     * lazy print function:
-     * 
-     * @param statement
-     */
-    public static void print(String statement) {
-        System.out.println(statement);
     }
 }

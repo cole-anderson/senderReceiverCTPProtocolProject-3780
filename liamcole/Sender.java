@@ -23,6 +23,7 @@ public class Sender {
     InetAddress addressInet = null;
     Boolean[] seqArray = new Boolean[255];
     int winSize = 1;
+    Scanner inline = null;
 
     public class SenderThread implements Runnable {
         int seqnum;
@@ -76,19 +77,22 @@ public class Sender {
              */
             try {
 
+                // Sends Packet
                 data = send;
                 System.out.println("==Sending Packet==\n");
                 clientSock.send(data);
 
-                // System.out.println("==Waiting for 2 sec==");
+                // Wait(fixMe: do we need this?)
+                System.out.print("Waiting...");
                 Thread.sleep(2000);
-                System.out.println("==Done waiting==");
+                System.out.println("...done waiting\n");
 
+                // Receives ACK,NACK
                 clientSock.receive(acknowledgement);
                 System.out.println("==Recieved Packet Back==\n");
-
                 byte[] readack = acknowledgement.getData();
 
+                // Parses ACK,NACK
                 Header a = new Header();
                 a.setType(readack[0]);
                 a.setTR(readack[0]);
@@ -102,7 +106,6 @@ public class Sender {
             } catch (IOException io) {
                 io.printStackTrace();
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -162,7 +165,7 @@ public class Sender {
             reader.close();
         } catch (FileNotFoundException fnf) {
             fnf.printStackTrace();
-            System.out.println("File not found exiting program");
+            System.out.println("%File not found exiting program%");
             System.exit(0);
         }
         return read;
@@ -173,14 +176,11 @@ public class Sender {
      * sent
      */
 
-    static String messageMode() {
+    String messageMode() {
         String input = "";
-        // System.out.println("Enter your message");// DEL: DELETE THIS LINE
-        Scanner inline = new Scanner(System.in);
+        inline = new Scanner(System.in);
         input = inline.nextLine();
         if (input.equals("end")) {
-
-            inline.close();
             return "";
         } else
             return input;
@@ -193,7 +193,7 @@ public class Sender {
      */
     static int generateTime() {
         int time = (int) (new Date(System.currentTimeMillis()).getTime() / 1000);
-        System.out.println("//debug generateTime:" + time);
+        // System.out.println("///debug generateTime:" + time);
         return time;
     }
 
@@ -301,7 +301,8 @@ public class Sender {
                         headerOne.setLength(temp.length);// if current payload is less then max 512 bytes
                         running = false;// will end loop after this transmission due to no more file to read
                         lastseq = seq;
-                        System.out.println("FINAL SEQNUM IS: " + lastseq);
+                        System.out.println("==FINAL SEQNUM IS==");
+                        System.out.println(">> " + lastseq);
                     }
 
                     headerOne.setLength(temp.length);// if current payload is less then max 512 bytes
@@ -322,7 +323,7 @@ public class Sender {
                 t1.start();
                 seq++;
                 if (running == false) {
-                    System.out.println("WAITING FOR LAST THREAD");
+                    System.out.println("**WAITING FOR LAST THREAD**");
                     try {
                         t1.join();
                     } catch (Exception e) {
@@ -337,7 +338,7 @@ public class Sender {
 
             }
 
-            Thread.sleep(2500);
+            Thread.sleep(2500); // TIMER IMPLEMENTATION
 
         } // END PRIMARY WHILE
         try {
@@ -358,7 +359,9 @@ public class Sender {
             DatagramPacket end = new DatagramPacket(finalPacket, finalPacket.length, addressInet, port);
             clientSock.send(end);
             clientSock.receive(acknowledgement);
-            System.out.println("==Recieved final ack==");
+            System.out.println("==Recieved Final ACK==");
+            // CLEANUP
+            inline.close(); // CLOSE SCANNER
             clientSock.close();// CLOSE SOCKET
         } catch (IOException io) {
             io.printStackTrace();
