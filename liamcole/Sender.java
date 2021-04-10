@@ -9,13 +9,11 @@ import java.net.UnknownHostException;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.Scanner;
-
 import java.lang.Runnable;
 
 /**
  * @author: Cole Anderson & Liam King. CPSC3780
  */
-
 public class Sender {
     Boolean running = true;
     DatagramSocket clientSock = null;
@@ -40,7 +38,7 @@ public class Sender {
             DatagramPacket data = null;
 
             // ACK&NACK INITIALIZATION:
-            byte[] recBuf = new byte[1]; // fixme:
+            byte[] recBuf = new byte[4]; // fixme:
             DatagramPacket acknowledgement;
             acknowledgement = new DatagramPacket(recBuf, recBuf.length);
             // Set Packet Parameters
@@ -276,14 +274,13 @@ public class Sender {
             for (int i = 0; i < winSize; i++) {
                 // Allows for continuous messaging to be enabled
                 if (usermode == true) {
-                    message = messageMode(); // FIXME: HERE
+                    message = messageMode();
                     if (message == "") {
                         usermode = false;
                         running = false;
                         break;
                     }
                     messageBuffer = createBuffer(message);
-                    System.out.println("///what is message buffer " + messageBuffer);
                 }
                 System.out.println("==Preparing Packet==\n");
                 headerOne.setType(0x41);
@@ -345,7 +342,7 @@ public class Sender {
         try {
             // FOLLOWING SENDS EMPTY PACKET TO END RECEIVER (DOES NOT ACCOUNT FOR THREADS)
             Header emptyEnd = new Header();
-            byte[] recBuf = new byte[1]; // fixme:
+            byte[] recBuf = new byte[4]; // fixme:
             DatagramPacket acknowledgement;
             acknowledgement = new DatagramPacket(recBuf, recBuf.length);
             emptyEnd.setType(0x41);
@@ -362,8 +359,11 @@ public class Sender {
             clientSock.receive(acknowledgement);
             System.out.println("==Recieved Final ACK==");
             // CLEANUP
-            inline.close(); // CLOSE SCANNER
             clientSock.close();// CLOSE SOCKET
+            clientSock = null;
+            inline = null;
+            System.exit(0);
+
         } catch (IOException io) {
             io.printStackTrace();
         }

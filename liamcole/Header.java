@@ -1,14 +1,13 @@
-// package liamcole; //(because why cant java just work right)
-
 import java.util.Arrays;
 import java.util.zip.CRC32;
 import java.nio.ByteBuffer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-// import java.nio.charset.Charset;
-// import java.rmi.UnexpectedException;
 import java.io.UnsupportedEncodingException;
 
+/**
+ * @author: Cole Anderson & Liam King. CPSC3780
+ */
 public class Header {
   // Packet obj that contains the given fields
   Packet p = new Packet(); // packet

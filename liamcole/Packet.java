@@ -1,5 +1,6 @@
-// package liamcole; //(because why cant java just work right)
-
+/**
+ * @author: Cole Anderson & Liam King. CPSC3780
+ */
 public class Packet {
 
     // Packet (contains header fields)

@@ -1,5 +1,3 @@
-// package liamcole; //(because why cant java just work right)
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,11 +9,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.sql.Date;
 
-/*
-    CPSC 3780 Cole Anderson and Liam King
-    Checkpoint1 (RECEIVER)
-*/
-
+/**
+ * @author: Cole Anderson & Liam King. CPSC3780
+ */
 public class Receiver {
     public static void main(String[] args) throws Exception {
         /*
