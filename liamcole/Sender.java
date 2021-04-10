@@ -23,6 +23,7 @@ public class Sender {
         int port = 0;
         String address = "";
         String message = "";
+        Boolean userMode = false;
 
         // If command line argument does not contain a host and port(exit)
         if (args.length <= 1) {
@@ -42,11 +43,12 @@ public class Sender {
             System.out.println("Message mode, no file specified");
             address = args[0];
             port = Integer.parseInt(args[1]);
-            message = messageMode();
+            message = "";
+            userMode = true;
 
         }
         // Socket Connecting
-        clientSide(address, port, file, message);
+        clientSide(address, port, file, message, userMode);
     }
 
     /*
@@ -101,7 +103,8 @@ public class Sender {
      * 
      * @throws Exception
      */
-    public static void clientSide(String address, int port, String fileName, String message) throws Exception {
+    public static void clientSide(String address, int port, String fileName, String message, Boolean usermode)
+            throws Exception {
 
         // INITIALIZATIONS:
         DatagramSocket clientSock = null;
@@ -143,6 +146,11 @@ public class Sender {
 
         // start primay loop
         while (running == true) {
+            // Allows for continuous messaging to be enabled
+            if (usermode == true) {
+                message = messageMode();
+                messageBuffer = createBuffer(message);
+            }
             headerOne = new Header();
 
             // Set Packet Parameters
