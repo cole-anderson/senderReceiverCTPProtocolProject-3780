@@ -94,11 +94,10 @@ public class Header {
   /*
    * Type Field Setter&Getter:
    */
-  public void setType(int val) throws Exception {
+  public void setType(int val) {
     byte temp = (byte) (val >> 6);
-    System.out.println("///debugsettype: " + temp);
     if (temp != 0) {
-      p.type = temp;
+      p.type = (byte) Math.abs(temp);
     } else {
       // throw new Exception("type invalid setType"); // fix later
     }
@@ -114,7 +113,6 @@ public class Header {
    */
   public void setTR(int val) {
     p.tr = (byte) (val >>> 5 & 1);
-    System.out.println("///debugsetr: " + (int) p.tr);
   }
 
   public byte getTR() {
@@ -245,7 +243,7 @@ public class Header {
         p.payload = buffer;
         nextBuffer = null; // final packet
       } else if (buffer.length >= 512) {
-        p.payload = Arrays.copyOfRange(buffer, 0, 511);
+        p.payload = Arrays.copyOfRange(buffer, 0, 512);
         nextBuffer = Arrays.copyOfRange(buffer, 512, buffer.length);
       }
 

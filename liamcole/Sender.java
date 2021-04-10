@@ -6,13 +6,104 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.lang.Runnable;
 
 /**
  * @author: Cole Anderson & Liam King. CPSC3780
  */
 
 public class Sender {
+    Boolean running = true;
+    DatagramSocket clientSock = null;
+    DatagramPacket data = null;
+    InetAddress addressInet = null;
+    Boolean[] seqArray = new Boolean[255];
+    int winSize = 1;
+
+    public class SenderThread implements Runnable {
+        int seqnum;
+        byte[] mb;
+        int portp;
+        DatagramPacket send;
+        public SenderThread(int seq, DatagramPacket s) {
+            seqnum = seq;
+            send = s;
+        }
+        public void run() {
+            DatagramPacket data = null;
+
+            // ACK&NACK INITIALIZATION:
+            byte[] recBuf = new byte[1]; // fixme:
+            DatagramPacket acknowledgement;
+            acknowledgement = new DatagramPacket(recBuf, recBuf.length);
+            // Set Packet Parameters
+            /*
+             * TOCONSIDER: TR SHOULD ALWAYS BE 0
+             * 
+             * -> 0x48 01 0 01000 -> (base case for now)
+             * 
+             * ->
+             * 
+             * (0) TYPE|TR|WINDOW
+             * 
+             * Type 1: Data Type 2: ACK(NOT REALLY APPLICABLE SENDER SIDE) Type 3: NACK
+             * 
+             * TR: Default 0 (will be set eventally by linksim)
+             * 
+             * Window: TODO: THIS HERE YES
+             * 
+             * (1) SeqNum TODO: THIS HERE YES
+             * 
+             * (2)(3) Length
+             * 
+             * (4-5-6-7) Timestamp TODO: THUS HERE YES
+             * 
+             * (8-9-10-11) CRC1
+             * 
+             * (12 to Length) Payload
+             * 
+             * (if applicable CRC2)
+             */
+    
+            /**
+             * DATAGRAMPACKET TRY CATCH:
+             */
+            try {
+    
+                data = send;
+                System.out.println("==Sending Packet==\n");
+                clientSock.send(data);
+    
+                // System.out.println("==Waiting for 2 sec==");
+                Thread.sleep(2000);
+                System.out.println("==Done waiting==");
+    
+                clientSock.receive(acknowledgement);
+                System.out.println("==Recieved Packet Back==\n");
+    
+                byte[] readack = acknowledgement.getData();
+    
+                Header a = new Header();
+                a.setType(readack[0]);
+                a.setTR(readack[0]);
+                a.setWindow(readack[0]);
+                if (a.getType() == (byte) 2) {
+                    System.out.println("[ACK RECEIVED] SEQNUM: " + seqnum + "\n");
+                    seqArray[seqnum] = true;
+                    winSize = a.getWindow();
+                } else if (a.getType() == (byte) 3)
+                    System.out.println("[NACK RECEIVED]\n");
+            } catch (IOException io) {
+                io.printStackTrace();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+    }
 
     public static void main(String[] args) throws Exception {
         /*
@@ -48,7 +139,8 @@ public class Sender {
 
         }
         // Socket Connecting
-        clientSide(address, port, file, message, userMode);
+        Sender send = new Sender();
+        send.clientSide(address, port, file, message, userMode);
     }
 
     /*
@@ -98,29 +190,33 @@ public class Sender {
         return buffer;
     }
 
+    public byte[] subArray(byte[] b, int index) {
+        if(index*512+511 > b.length) {
+            byte[] temp = Arrays.copyOfRange(b, index*512, b.length);
+            return temp;
+        } 
+        byte[] temp = Arrays.copyOfRange(b, index*512, index*512 + 512);
+        return temp;
+    }
+
     /**
      * awdawdasd clientSide: Sockets
      * 
      * @throws Exception
      */
-    public static void clientSide(String address, int port, String fileName, String message, Boolean usermode)
+    public void clientSide(String address, int port, String fileName, String message, Boolean usermode)
             throws Exception {
 
         // INITIALIZATIONS:
-        DatagramSocket clientSock = null;
-        DatagramPacket data = null;
-        InetAddress addressInet = null;
-        Header headerOne;
-        Boolean running = true;
+        Header headerOne = new Header();
         int seq = 0;
+        Arrays.fill(seqArray, Boolean.FALSE);
 
-        // ACK&NACK INITIALIZATION:
-        byte[] recBuf = new byte[1]; // fixme:
-        DatagramPacket acknowledgement;
-        acknowledgement = new DatagramPacket(recBuf, recBuf.length);
 
         // BUFFER INITIALIZATION(FROM MESSAGE)
         byte[] messageBuffer = createBuffer(message);
+
+        
 
         // SOCKET+INETADDRESS INITIALIZATION:
         /**
@@ -144,101 +240,77 @@ public class Sender {
             uh.printStackTrace();
         }
 
+        // Allows for continuous messaging to be enabled
+        if (usermode == true) {
+            message = messageMode();
+            messageBuffer = createBuffer(message);
+        }
+        int lastseq = 0;
         // start primay loop
         while (running == true) {
-            // Allows for continuous messaging to be enabled
-            if (usermode == true) {
-                message = messageMode();
-                messageBuffer = createBuffer(message);
-            }
-            headerOne = new Header();
-
-            // Set Packet Parameters
-            /*
-             * TOCONSIDER: TR SHOULD ALWAYS BE 0
-             * 
-             * -> 0x48 01 0 01000 -> (base case for now)
-             * 
-             * ->
-             * 
-             * (0) TYPE|TR|WINDOW
-             * 
-             * Type 1: Data Type 2: ACK(NOT REALLY APPLICABLE SENDER SIDE) Type 3: NACK
-             * 
-             * TR: Default 0 (will be set eventally by linksim)
-             * 
-             * Window: TODO: THIS HERE YES
-             * 
-             * (1) SeqNum TODO: THIS HERE YES
-             * 
-             * (2)(3) Length
-             * 
-             * (4-5-6-7) Timestamp TODO: THUS HERE YES
-             * 
-             * (8-9-10-11) CRC1
-             * 
-             * (12 to Length) Payload
-             * 
-             * (if applicable CRC2)
-             */
-
             // Setting Header Parameters:
-            System.out.println("==Preparing Packet==\n");
-            headerOne.setType(0x41);
-            headerOne.setTR(0x41);
-            headerOne.setWindow(0x41);
-            headerOne.setSeqnum(seq);
-            if (messageBuffer.length < 512) {
-                headerOne.setLength(messageBuffer.length);// if current payload is less then max 512 bytes
-                running = false;// will end loop after this transmission
-            } else {
-                headerOne.setLength(511);// if current payload is more than max 512 bytes
+            for(int i = 0; i < 255; i++) {
+                if(seqArray[i] == false) {
+                    seq = i;
+                    break;
+                }
             }
-            headerOne.setTimestamp(55);
-            headerOne.setCRC1();
-            messageBuffer = headerOne.setPayload(messageBuffer);
-            headerOne.setCRC2();
+            for(int i = seq+1; i < 255; i++) {
+                seqArray[i] = false;
+            }
+            for(int i = 0; i < winSize; i++) {
+                System.out.println("==Preparing Packet==\n");
+                headerOne.setType(0x41);
+                headerOne.setTR(0x41);
+                headerOne.setWindow(winSize);
+                headerOne.setSeqnum(seq);
+                byte[] temp = subArray(messageBuffer, seq);
+                if (temp.length < 511) {
+                    headerOne.setLength(temp.length);// if current payload is less then max 512 bytes
+                    lastseq = seq;
+                    System.out.println("FINAL SEQNUM IS: " + lastseq);
+                    running = false;// will end loop after this transmission
+                } else {
+                    headerOne.setLength(512);// if current payload is more than max 512 bytes
+                }
+                headerOne.setTimestamp(55);
+                headerOne.setCRC1();
+                headerOne.setPayload(temp);
+                headerOne.setCRC2();
+        
+                // Preparing Packet for Transmission:
+                byte[] write = headerOne.returnCTPByteArray();
 
-            // Preparing Packet for Transmission:
-            byte[] write = headerOne.returnCTPByteArray();
+                DatagramPacket data = new DatagramPacket(write, write.length, addressInet, port);
+                SenderThread t = new SenderThread(seq, data);
+                Thread t1 = new Thread(t);
+                t1.start();
+                seq++;
+                if(running == false) {
+                    System.out.println("WAITING FOR LAST THREAD");
+                    try {
+                        t1.join();
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
+                    if(seqArray[lastseq] != true) {
+                        running = true;
+                    } else {
+                        break;
+                    }
+                }
 
-            /**
-             * DATAGRAMPACKET TRY CATCH:
-             */
-            try {
-
-                data = new DatagramPacket(write, write.length, addressInet, port);
-                System.out.println("==Sending Packet==\n");
-                clientSock.send(data);
-
-                // System.out.println("==Waiting for 2 sec==");
-                // Thread.sleep(2000);
-                System.out.println("==Done waiting==");
-
-                clientSock.receive(acknowledgement);
-                System.out.println("==Recieved Packet Back==\n");
-
-                byte[] readack = acknowledgement.getData();
-
-                Header a = new Header();
-                a.setType(Math.abs(readack[0]));
-                a.setTR(readack[0]);
-                a.setWindow(readack[0]);
-
-                if (a.getType() == (byte) 2) {
-                    System.out.println("[ACK RECEIVED]\n");
-                    seq++;
-                } else if (a.getType() == (byte) 3)
-                    System.out.println("[NACK RECEIVED]\n");
-
-            } catch (IOException io) {
-                io.printStackTrace();
             }
 
-        } // END PRIMARY WHILE
+      Thread.sleep(2000);      
+
+} // END PRIMARY WHILE
         try {
             // FOLLOWING SENDS EMPTY PACKET TO END RECEIVER (DOES NOT ACCOUNT FOR THREADS)
             Header emptyEnd = new Header();
+            byte[] recBuf = new byte[1]; // fixme:
+            DatagramPacket acknowledgement;
+            acknowledgement = new DatagramPacket(recBuf, recBuf.length);
             emptyEnd.setType(0x41);
             emptyEnd.setTR(0x41);
             emptyEnd.setWindow(0x41);
