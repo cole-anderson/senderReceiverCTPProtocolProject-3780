@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.sql.Date;
 
 /*
     CPSC 3780 Cole Anderson and Liam King
@@ -51,6 +52,17 @@ public class Receiver {
         System.exit(0);// temporary
 
     }// ENDMAIN
+
+    /**
+     * Generates timestamp
+     * 
+     * @return time
+     */
+    static int generateTime() {
+        int time = (int) (new Date(System.currentTimeMillis()).getTime() / 1000);
+        System.out.println("//debug generateTime:" + time);
+        return time;
+    }
 
     /*
      * writeFile: writes to textfile
@@ -137,6 +149,7 @@ public class Receiver {
                     temp[i] = read[12 + i];
                 }
                 r.setPayload(temp);
+                System.out.println("PAYLOAD RECEIVED: " + r.getPayload());
                 paylen = len;
                 pay.write(r.p.payload);
 
@@ -154,7 +167,7 @@ public class Receiver {
                     reply.setWindow(0x81);
                     reply.setSeqnum(r.getSeqnum() + 1);
                 }
-                reply.setTimestamp(timestamp);
+                reply.setTimestamp(generateTime());
                 reply.setLength(0);
                 reply.setCRC1();
 
@@ -183,10 +196,11 @@ public class Receiver {
 
         // if not file in command line args
         if (fileName == "") {
-            System.out.println(pay.toString());
+            System.out.println("PRINTING MESSAGELOG: " + pay.toString());
         }
         // else file is specified in command line args
         else {
+            System.out.println("WRITING MESSAGELOG TO FILE");
             writeFile(fileName, pay.toString());
         }
     }

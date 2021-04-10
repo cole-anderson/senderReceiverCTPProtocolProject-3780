@@ -6,8 +6,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.Date;
 import java.util.Arrays;
 import java.util.Scanner;
+
 import java.lang.Runnable;
 
 /**
@@ -27,10 +29,12 @@ public class Sender {
         byte[] mb;
         int portp;
         DatagramPacket send;
+
         public SenderThread(int seq, DatagramPacket s) {
             seqnum = seq;
             send = s;
         }
+
         public void run() {
             DatagramPacket data = null;
 
@@ -66,25 +70,25 @@ public class Sender {
              * 
              * (if applicable CRC2)
              */
-    
+
             /**
              * DATAGRAMPACKET TRY CATCH:
              */
             try {
-    
+
                 data = send;
                 System.out.println("==Sending Packet==\n");
                 clientSock.send(data);
-    
+
                 // System.out.println("==Waiting for 2 sec==");
                 Thread.sleep(2000);
                 System.out.println("==Done waiting==");
-    
+
                 clientSock.receive(acknowledgement);
                 System.out.println("==Recieved Packet Back==\n");
-    
+
                 byte[] readack = acknowledgement.getData();
-    
+
                 Header a = new Header();
                 a.setType(readack[0]);
                 a.setTR(readack[0]);
@@ -131,7 +135,7 @@ public class Sender {
         }
         // Sender 127.0.0.1 64341
         else if (args.length == 2) {
-            System.out.println("Message mode, no file specified");
+            System.out.println("Message mode, no file specified. Type <end> to stop sending messages");
             address = args[0];
             port = Integer.parseInt(args[1]);
             message = "";
@@ -174,8 +178,23 @@ public class Sender {
         // System.out.println("Enter your message");// DEL: DELETE THIS LINE
         Scanner inline = new Scanner(System.in);
         input = inline.nextLine();
-        inline.close();
-        return input;
+        if (input.equals("end")) {
+
+            inline.close();
+            return "";
+        } else
+            return input;
+    }
+
+    /**
+     * Generates timestamp
+     * 
+     * @return time
+     */
+    static int generateTime() {
+        int time = (int) (new Date(System.currentTimeMillis()).getTime() / 1000);
+        System.out.println("//debug generateTime:" + time);
+        return time;
     }
 
     /**
@@ -191,11 +210,14 @@ public class Sender {
     }
 
     public byte[] subArray(byte[] b, int index) {
-        if(index*512+511 > b.length) {
-            byte[] temp = Arrays.copyOfRange(b, index*512, b.length);
+        if (b.length < 512) {
+            return b;
+        }
+        if (index * 512 + 511 > b.length) {
+            byte[] temp = Arrays.copyOfRange(b, index * 512, b.length);
             return temp;
-        } 
-        byte[] temp = Arrays.copyOfRange(b, index*512, index*512 + 512);
+        }
+        byte[] temp = Arrays.copyOfRange(b, index * 512, index * 512 + 512);
         return temp;
     }
 
@@ -212,11 +234,8 @@ public class Sender {
         int seq = 0;
         Arrays.fill(seqArray, Boolean.FALSE);
 
-
         // BUFFER INITIALIZATION(FROM MESSAGE)
         byte[] messageBuffer = createBuffer(message);
-
-        
 
         // SOCKET+INETADDRESS INITIALIZATION:
         /**
@@ -240,44 +259,59 @@ public class Sender {
             uh.printStackTrace();
         }
 
-        // Allows for continuous messaging to be enabled
-        if (usermode == true) {
-            message = messageMode();
-            messageBuffer = createBuffer(message);
-        }
         int lastseq = 0;
         // start primay loop
         while (running == true) {
+
+            // Allows for continuous messaging to be enabled
+            if (usermode == true) {
+                message = messageMode();
+                if (message == "") {
+                    usermode = false;
+                }
+                messageBuffer = createBuffer(message);
+            }
+
             // Setting Header Parameters:
-            for(int i = 0; i < 255; i++) {
-                if(seqArray[i] == false) {
+            for (int i = 0; i < 255; i++) {
+                if (seqArray[i] == false) {
                     seq = i;
                     break;
                 }
             }
-            for(int i = seq+1; i < 255; i++) {
+            for (int i = seq + 1; i < 255; i++) {
                 seqArray[i] = false;
             }
-            for(int i = 0; i < winSize; i++) {
+            for (int i = 0; i < winSize; i++) {
                 System.out.println("==Preparing Packet==\n");
                 headerOne.setType(0x41);
                 headerOne.setTR(0x41);
                 headerOne.setWindow(winSize);
                 headerOne.setSeqnum(seq);
                 byte[] temp = subArray(messageBuffer, seq);
+
                 if (temp.length < 511) {
+
+                    // Allows for continuous user input
+                    if (usermode == true) {
+                        headerOne.setLength(temp.length);// if current payload is less then max 512 bytes
+
+                    } else {
+                        headerOne.setLength(temp.length);// if current payload is less then max 512 bytes
+                        running = false;// will end loop after this transmission due to no more file to read
+                        lastseq = seq;
+                        System.out.println("FINAL SEQNUM IS: " + lastseq);
+                    }
+
                     headerOne.setLength(temp.length);// if current payload is less then max 512 bytes
-                    lastseq = seq;
-                    System.out.println("FINAL SEQNUM IS: " + lastseq);
-                    running = false;// will end loop after this transmission
                 } else {
                     headerOne.setLength(512);// if current payload is more than max 512 bytes
                 }
-                headerOne.setTimestamp(55);
+                headerOne.setTimestamp(generateTime());
                 headerOne.setCRC1();
                 headerOne.setPayload(temp);
                 headerOne.setCRC2();
-        
+
                 // Preparing Packet for Transmission:
                 byte[] write = headerOne.returnCTPByteArray();
 
@@ -286,14 +320,14 @@ public class Sender {
                 Thread t1 = new Thread(t);
                 t1.start();
                 seq++;
-                if(running == false) {
+                if (running == false) {
                     System.out.println("WAITING FOR LAST THREAD");
                     try {
                         t1.join();
                     } catch (Exception e) {
                         System.out.println(e);
                     }
-                    if(seqArray[lastseq] != true) {
+                    if (seqArray[lastseq] != true) {
                         running = true;
                     } else {
                         break;
@@ -302,9 +336,9 @@ public class Sender {
 
             }
 
-      Thread.sleep(2000);      
+            Thread.sleep(2000);
 
-} // END PRIMARY WHILE
+        } // END PRIMARY WHILE
         try {
             // FOLLOWING SENDS EMPTY PACKET TO END RECEIVER (DOES NOT ACCOUNT FOR THREADS)
             Header emptyEnd = new Header();
