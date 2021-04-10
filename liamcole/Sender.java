@@ -263,15 +263,6 @@ public class Sender {
         // start primay loop
         while (running == true) {
 
-            // Allows for continuous messaging to be enabled
-            if (usermode == true) {
-                message = messageMode();
-                if (message == "") {
-                    usermode = false;
-                }
-                messageBuffer = createBuffer(message);
-            }
-
             // Setting Header Parameters:
             for (int i = 0; i < 255; i++) {
                 if (seqArray[i] == false) {
@@ -283,6 +274,16 @@ public class Sender {
                 seqArray[i] = false;
             }
             for (int i = 0; i < winSize; i++) {
+                // Allows for continuous messaging to be enabled
+                if (usermode == true) {
+                    message = messageMode(); // FIXME: HERE
+                    if (message == "") {
+                        usermode = false;
+                        break;
+                    }
+                    messageBuffer = createBuffer(message);
+                }
+
                 System.out.println("==Preparing Packet==\n");
                 headerOne.setType(0x41);
                 headerOne.setTR(0x41);
@@ -336,7 +337,7 @@ public class Sender {
 
             }
 
-            Thread.sleep(2000);
+            Thread.sleep(2500);
 
         } // END PRIMARY WHILE
         try {
