@@ -6,6 +6,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -38,7 +40,7 @@ public class Sender {
             DatagramPacket data = null;
 
             // ACK&NACK INITIALIZATION:
-            byte[] recBuf = new byte[4]; // fixme:
+            byte[] recBuf = new byte[8]; // fixme:
             DatagramPacket acknowledgement;
             acknowledgement = new DatagramPacket(recBuf, recBuf.length);
             // Set Packet Parameters
@@ -94,6 +96,15 @@ public class Sender {
                 a.setType(readack[0]);
                 a.setTR(readack[0]);
                 a.setWindow(readack[0]);
+                byte[] temptime = new byte[4];
+                temptime[0] = readack[4];
+                temptime[1] = readack[5];
+                temptime[2] = readack[6];
+                temptime[3] = readack[7];
+                ByteBuffer bbt = ByteBuffer.wrap(temptime);
+                bbt.order(ByteOrder.BIG_ENDIAN);
+                int timestamp = bbt.getInt();
+                a.setTimestamp(timestamp);
                 if (a.getType() == (byte) 2) {
                     System.out.println("[ACK RECEIVED] SEQNUM: " + seqnum + "\n");
                     seqArray[seqnum] = true;
@@ -356,7 +367,7 @@ public class Sender {
             byte[] finalPacket = emptyEnd.ackknowledgement();
             DatagramPacket end = new DatagramPacket(finalPacket, finalPacket.length, addressInet, port);
             clientSock.send(end);
-            clientSock.receive(acknowledgement);
+            clientSock.receive(acknowledgement); //hangs here
             System.out.println("==Recieved Final ACK==");
             // CLEANUP
             clientSock.close();// CLOSE SOCKET
