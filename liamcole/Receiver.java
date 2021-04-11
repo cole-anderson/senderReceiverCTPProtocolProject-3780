@@ -143,11 +143,12 @@ public class Receiver {
                 }
                 r.setPayload(temp);
                 // Check for if payload exists or if NACK / FINAL ACK
-                if (!r.getPayload().equals(""))
+                if (!r.getPayload().equals("")) {
                     System.out.println("**PAYLOAD RECEIVED**: " + r.getPayload());
-
-                paylen = len;
-                pay.write(r.p.payload);
+                    paylen = len;
+                    pay.write(r.p.payload);
+                } else
+                    break;// exit while
 
                 /// 3) Create/Set acknowledgment packet:
                 Header reply = new Header();
@@ -199,5 +200,7 @@ public class Receiver {
             System.out.println("WRITING MESSAGELOG TO FILE...");
             writeFile(fileName, pay.toString());
         }
+        // serverSock.close();
+        // System.exit(0);
     }
 }

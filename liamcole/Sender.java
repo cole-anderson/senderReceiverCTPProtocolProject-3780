@@ -74,7 +74,6 @@ public class Sender {
              * DATAGRAMPACKET TRY CATCH:
              */
             try {
-
                 // Sends Packet
                 data = send;
                 System.out.println("==Sending Packet==\n");
@@ -328,18 +327,19 @@ public class Sender {
                         System.out.println(e);
                     }
                     if (seqArray[lastseq] != true) {
+                        System.out.println("%%%are we here%%%");
                         running = true;
                     } else {
                         break;
                     }
                 }
-
             }
-
+            System.out.println("TIMER...");
             Thread.sleep(2500); // TIMER IMPLEMENTATION
 
         } // END PRIMARY WHILE
         try {
+            System.out.println("IN FINAL AREA");
             // FOLLOWING SENDS EMPTY PACKET TO END RECEIVER (DOES NOT ACCOUNT FOR THREADS)
             Header emptyEnd = new Header();
             byte[] recBuf = new byte[4]; // fixme:
@@ -361,7 +361,9 @@ public class Sender {
             // CLEANUP
             clientSock.close();// CLOSE SOCKET
             clientSock = null;
+            // inline.close();
             inline = null;
+
             System.exit(0);
 
         } catch (IOException io) {
