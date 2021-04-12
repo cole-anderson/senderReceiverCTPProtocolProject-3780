@@ -23,8 +23,10 @@ public class Receiver {
     public class ReceiverThread implements Runnable {
         DatagramPacket receivedData = null;
         byte[] buff = new byte[12 + 512 + 4]; // First 12 bytes top header, 512 max payload, 4 bytes CRC2
+
         public ReceiverThread() {
         }
+
         public void run() {
             try {
                 /// 1) Receives packet:
@@ -67,15 +69,12 @@ public class Receiver {
                 r.setPayload(temp);
                 // Check for if payload exists or if NACK / FINAL ACK
                 if (!r.getPayload().equals("")) {
-                    System.out.println("**PAYLOAD RECEIVED**: " + r.getPayload());
+                    System.out.println("**PAYLOAD RECEIVED**: " + r.getPayload() + "\n");
                     pay[r.getSeqnum()] = r.p.payload;
                 } else {
                     running = false;
                     lastseq = r.getSeqnum();
                 }
-
-
-                    
 
                 /// 3) Create/Set acknowledgment packet:
                 Header reply = new Header();
@@ -103,7 +102,7 @@ public class Receiver {
                     DatagramPacket ack = new DatagramPacket(reply.ackknowledgement(), reply.ackknowledgement().length,
                             from, recPort);
 
-                    System.out.println("SENDING ACK#: " + r.getSeqnum());
+                    System.out.println("->SENDING ACK#: " + r.getSeqnum());
                     serverSock.send(ack); // send acknowledgement back to sender
 
                 } catch (IOException io) {
@@ -116,6 +115,7 @@ public class Receiver {
             }
         }
     }
+
     public static void main(String[] args) throws Exception {
         /*
          * Receiver -f data-received.txt 64341 [OR] Receiver 64341
@@ -193,7 +193,7 @@ public class Receiver {
     public ByteArrayOutputStream reconstructPayload() {
         ByteArrayOutputStream temp = new ByteArrayOutputStream();
         try {
-            for(int i = 0; i < lastseq; i++) {
+            for (int i = 0; i < lastseq; i++) {
                 temp.write(pay[i]);
             }
         } catch (IOException io) {
@@ -214,11 +214,11 @@ public class Receiver {
             io.printStackTrace();
         }
         ThreadGroup recs = new ThreadGroup("Rec");
-        while(running == true) {
-            if(recs.activeCount() < 32) {
-            ReceiverThread t = new ReceiverThread();
-            Thread t1 = new Thread(recs, t);
-            t1.start();
+        while (running == true) {
+            if (recs.activeCount() < 32) {
+                ReceiverThread t = new ReceiverThread();
+                Thread t1 = new Thread(recs, t);
+                t1.start();
             }
         }
         Thread.sleep(1500);
@@ -226,9 +226,9 @@ public class Receiver {
         // Thread[] threads = new Thread[act];
         // recs.enumerate(threads);
         // for(int i = 0; i < act; i++) {
-        //     Thread t = threads[i];
-        //     if(t != null)
-        //         t.join();
+        // Thread t = threads[i];
+        // if(t != null)
+        // t.join();
         // }
         ByteArrayOutputStream payl = reconstructPayload();
 

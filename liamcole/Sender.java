@@ -367,7 +367,7 @@ public class Sender {
             byte[] finalPacket = emptyEnd.ackknowledgement();
             DatagramPacket end = new DatagramPacket(finalPacket, finalPacket.length, addressInet, port);
             clientSock.send(end);
-            clientSock.receive(acknowledgement); //hangs here
+            clientSock.receive(acknowledgement); // hangs here
             System.out.println("==Recieved Final ACK==");
             // CLEANUP
             clientSock.close();// CLOSE SOCKET
