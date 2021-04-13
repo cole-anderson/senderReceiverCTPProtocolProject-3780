@@ -5,6 +5,7 @@ import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -87,7 +88,12 @@ public class Sender {
                 System.out.println("...done waiting\n");
 
                 // Receives ACK,NACK
+                try {
                 clientSock.receive(acknowledgement);
+                } catch (SocketTimeoutException s) {
+                    System.out.println("==ACK TIMOUT, PACKET WILL BE RETRANSMITTED==\n");
+                    return;
+                }
                 System.out.println("==Recieved Packet Back==\n");
                 byte[] readack = acknowledgement.getData();
 
@@ -109,8 +115,10 @@ public class Sender {
                     System.out.println("[ACK RECEIVED] SEQNUM: " + seqnum + "\n");
                     seqArray[seqnum] = true;
                     winSize = a.getWindow();
-                } else if (a.getType() == (byte) 3)
+                } else if (a.getType() == (byte) 3) {
                     System.out.println("[NACK RECEIVED]\n");
+                    winSize = a.getWindow();
+                }
             } catch (IOException io) {
                 io.printStackTrace();
             } catch (InterruptedException e) {
@@ -258,6 +266,7 @@ public class Sender {
             System.out.println("--LOCALHOST MODE ENABLED--");
             clientSock = new DatagramSocket();
         }
+        clientSock.setSoTimeout(3000);
         /**
          * Convert ip Address to inet address for use in datagram sockets
          */
@@ -266,21 +275,25 @@ public class Sender {
         } catch (UnknownHostException uh) {
             uh.printStackTrace();
         }
-
+        int numseq = 0;
+        if(usermode == true) {
+            numseq = 255;
+        } else {
+            numseq = (messageBuffer.length / 512) + 1;
+        }
         int lastseq = 0;
+
         // start primay loop
         while (running == true) {
 
             // Setting Header Parameters:
-            for (int i = 0; i < 255; i++) {
+            for (int i = 0; i < numseq; i++) {
                 if (seqArray[i] == false) {
                     seq = i;
                     break;
                 }
             }
-            for (int i = seq + 1; i < 255; i++) {
-                seqArray[i] = false;
-            }
+
             for (int i = 0; i < winSize; i++) {
                 // Allows for continuous messaging to be enabled
                 if (usermode == true) {
@@ -330,6 +343,9 @@ public class Sender {
                 Thread t1 = new Thread(t);
                 t1.start();
                 seq++;
+                while(seqArray[seq] == true) {
+                    seq++;
+                }
                 if (running == false) {
                     System.out.println("**WAITING FOR LAST THREAD**");
                     try {

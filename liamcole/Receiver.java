@@ -58,8 +58,8 @@ public class Receiver {
                 ByteBuffer bbt = ByteBuffer.wrap(temptime);
                 bbt.order(ByteOrder.BIG_ENDIAN);
                 int timestamp = bbt.getInt();
-                lasttime = timestamp;
                 r.setTimestamp(lasttime);
+                lasttime = timestamp;
                 r.setCRC1();
 
                 byte[] temp = new byte[len];
