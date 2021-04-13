@@ -58,13 +58,13 @@ public class Sender {
              * 
              * TR: Default 0 (will be set eventally by linksim)
              * 
-             * Window: TODO: THIS HERE YES
+             * Window:
              * 
-             * (1) SeqNum TODO: THIS HERE YES
+             * (1) SeqNum
              * 
              * (2)(3) Length
              * 
-             * (4-5-6-7) Timestamp TODO: THUS HERE YES
+             * (4-5-6-7) Timestamp
              * 
              * (8-9-10-11) CRC1
              * 
@@ -79,22 +79,16 @@ public class Sender {
             try {
                 // Sends Packet
                 data = send;
-                System.out.println("==Sending Packet==\n");
+                System.out.println("==Sending Packet: " + seqnum + "==\n");
                 clientSock.send(data);
-
-                // Wait(fixMe: do we need this?)
-                System.out.print("Waiting...");
-                Thread.sleep(2000);
-                System.out.println("...done waiting\n");
 
                 // Receives ACK,NACK
                 try {
-                clientSock.receive(acknowledgement);
+                    clientSock.receive(acknowledgement);
                 } catch (SocketTimeoutException s) {
                     System.out.println("==ACK TIMOUT, PACKET WILL BE RETRANSMITTED==\n");
                     return;
                 }
-                System.out.println("==Recieved Packet Back==\n");
                 byte[] readack = acknowledgement.getData();
 
                 // Parses ACK,NACK
@@ -102,6 +96,7 @@ public class Sender {
                 a.setType(readack[0]);
                 a.setTR(readack[0]);
                 a.setWindow(readack[0]);
+                a.setSeqnum(readack[1]);
                 byte[] temptime = new byte[4];
                 temptime[0] = readack[4];
                 temptime[1] = readack[5];
@@ -112,16 +107,21 @@ public class Sender {
                 int timestamp = bbt.getInt();
                 a.setTimestamp(timestamp);
                 if (a.getType() == (byte) 2) {
-                    System.out.println("[ACK RECEIVED] SEQNUM: " + seqnum + "\n");
-                    seqArray[seqnum] = true;
+                    if (a.getSeqnum() == 0) {
+                        return;
+                    }
+                    System.out.println("[ACK RECEIVED] SEQNUM: " + (a.getSeqnum() - 1) + "\n");
+                    for (int k = 0; k < a.getSeqnum() - 1; k++) {
+                        seqArray[k] = true;
+                    }
                     winSize = a.getWindow();
                 } else if (a.getType() == (byte) 3) {
-                    System.out.println("[NACK RECEIVED]\n");
+                    System.out.println("[NACK RECEIVED] SEQNUM: " + (a.getSeqnum()) + "\n");
                     winSize = a.getWindow();
                 }
             } catch (IOException io) {
                 io.printStackTrace();
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -276,13 +276,11 @@ public class Sender {
             uh.printStackTrace();
         }
         int numseq = 0;
-        if(usermode == true) {
+        if (usermode == true) {
             numseq = 255;
         } else {
-            numseq = (messageBuffer.length / 512) + 1;
+            numseq = (messageBuffer.length / 512);
         }
-        int lastseq = 0;
-
         // start primay loop
         while (running == true) {
 
@@ -293,13 +291,12 @@ public class Sender {
                     break;
                 }
             }
-
+            ThreadGroup sends = new ThreadGroup("Send");
             for (int i = 0; i < winSize; i++) {
                 // Allows for continuous messaging to be enabled
                 if (usermode == true) {
                     message = messageMode();
                     if (message == "") {
-                        usermode = false;
                         running = false;
                         break;
                     }
@@ -321,9 +318,6 @@ public class Sender {
                     } else {
                         headerOne.setLength(temp.length);// if current payload is less then max 512 bytes
                         running = false;// will end loop after this transmission due to no more file to read
-                        lastseq = seq;
-                        System.out.println("==FINAL SEQNUM IS==");
-                        System.out.println(">> " + lastseq);
                     }
 
                     headerOne.setLength(temp.length);// if current payload is less then max 512 bytes
@@ -340,33 +334,47 @@ public class Sender {
 
                 DatagramPacket data = new DatagramPacket(write, write.length, addressInet, port);
                 SenderThread t = new SenderThread(seq, data);
-                Thread t1 = new Thread(t);
+                Thread t1 = new Thread(sends, t);
                 t1.start();
-                seq++;
-                while(seqArray[seq] == true) {
+                if (seq < numseq) {
+                    seq++;
+                }
+                while ((seqArray[seq] == true) && (seq < numseq)) {
                     seq++;
                 }
                 if (running == false) {
-                    System.out.println("**WAITING FOR LAST THREAD**");
+                    if (usermode == true) {
+                        break;
+                    }
                     try {
-                        t1.join();
+                        int act = sends.activeCount() * 2;
+                        Thread[] threads = new Thread[act];
+                        sends.enumerate(threads);
+                        for (int k = 0; k < act; k++) {
+                            Thread t2 = threads[k];
+                            if (t2 != null)
+                                t2.join();
+                        }
                     } catch (Exception e) {
                         System.out.println(e);
                     }
-                    if (seqArray[lastseq] != true) {
-                        System.out.println("%%%are we here%%%");
-                        running = true;
-                    } else {
-                        break;
+                    for (int j = 0; j < numseq; j++) {
+                        if (seqArray[j] == false) {
+                            running = true;
+                            break;
+                        }
+                        seq = numseq + 1;
                     }
+                    break;
                 }
             }
+
             System.out.println("TIMER...");
             Thread.sleep(2500); // TIMER IMPLEMENTATION
 
         } // END PRIMARY WHILE
         try {
-            System.out.println("IN FINAL AREA");
+            System.out.println("SENDING FINAL PACKET");
             // FOLLOWING SENDS EMPTY PACKET TO END RECEIVER (DOES NOT ACCOUNT FOR THREADS)
             Header emptyEnd = new Header();
             byte[] recBuf = new byte[4]; // fixme:

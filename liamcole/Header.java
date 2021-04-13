@@ -94,9 +94,10 @@ public class Header {
    * Type Field Setter&Getter:
    */
   public void setType(int val) {
-    byte temp = (byte) (val >> 6);
-    if (temp != 0) {
-      p.type = (byte) Math.abs(temp);
+    byte temp = (byte) val;
+    byte convert = (byte) (Byte.toUnsignedInt(temp) >>> 6);
+    if (convert != 0) {
+      p.type = (byte) Math.abs(convert);
     } else {
       // throw new Exception("type invalid setType"); // fix later
     }
@@ -123,8 +124,6 @@ public class Header {
    * Window Field Setter&Getter:
    */
   public void setWindow(int val) {
-    // System.out.println("window" + val);
-    // System.out.println("window after" + (byte) (val & 31));
     p.window = (byte) (val & 31);
   }
 

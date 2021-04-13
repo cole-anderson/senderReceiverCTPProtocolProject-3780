@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.sql.Date;
+import java.util.Arrays;
 import java.lang.Runnable;
 
 /**
@@ -19,6 +20,7 @@ public class Receiver {
     byte[][] pay = new byte[256][512];
     int lastseq = 0;
     int lasttime = 0;
+    Boolean[] seqArray = new Boolean[255];
 
     public class ReceiverThread implements Runnable {
         DatagramPacket receivedData = null;
@@ -39,7 +41,6 @@ public class Receiver {
                 r.setType((int) read[0]);
                 r.setTR((int) read[0]);
                 r.setWindow((int) read[0]);
-
                 r.setSeqnum(read[1]);
 
                 byte[] templen = new byte[2];
@@ -61,21 +62,27 @@ public class Receiver {
                 r.setTimestamp(lasttime);
                 lasttime = timestamp;
                 r.setCRC1();
-
-                byte[] temp = new byte[len];
-                for (int i = 0; i < r.getLength(); i++) {
-                    temp[i] = read[12 + i];
+                if (r.getTR() != 1) {
+                    byte[] temp = new byte[len];
+                    for (int i = 0; i < r.getLength(); i++) {
+                        temp[i] = read[12 + i];
+                    }
+                    r.setPayload(temp);
+                    seqArray[r.getSeqnum()] = true;
+                    // Check for if payload exists or if NACK / FINAL ACK
+                    if (!r.getPayload().equals("")) {
+                        System.out.println("**PAYLOAD RECEIVED**[ " + r.getSeqnum() + " ] " + r.getPayload() + "\n");
+                        pay[r.getSeqnum()] = r.p.payload;
+                    } else {
+                        lastseq = r.getSeqnum();
+                    }
                 }
-                r.setPayload(temp);
-                // Check for if payload exists or if NACK / FINAL ACK
-                if (!r.getPayload().equals("")) {
-                    System.out.println("**PAYLOAD RECEIVED**: " + r.getPayload() + "\n");
-                    pay[r.getSeqnum()] = r.p.payload;
-                } else {
-                    running = false;
-                    lastseq = r.getSeqnum();
+                for (int i = 0; i < r.getSeqnum(); i++) {
+                    if (seqArray[i] == false) {
+                        r.setTR(0xFF);
+                        break;
+                    }
                 }
-
                 /// 3) Create/Set acknowledgment packet:
                 Header reply = new Header();
                 if (r.getTR() == 1) { // if TR is 1 we send a NACK else we send ACK
@@ -101,8 +108,13 @@ public class Receiver {
 
                     DatagramPacket ack = new DatagramPacket(reply.ackknowledgement(), reply.ackknowledgement().length,
                             from, recPort);
-
-                    System.out.println("->SENDING ACK#: " + r.getSeqnum());
+                    String pState = "";
+                    if (reply.getType() == 3) {
+                        pState = " [NACK] ";
+                    } else if (reply.getType() == 2) {
+                        pState = " [ACK] ";
+                    }
+                    System.out.println("->SENDING" + pState + "FOR#: " + r.getSeqnum());
                     serverSock.send(ack); // send acknowledgement back to sender
 
                 } catch (IOException io) {
@@ -206,7 +218,7 @@ public class Receiver {
      * serverSide: Sockets
      */
     public void serverSide(int port, String fileName) throws Exception {
-
+        Arrays.fill(seqArray, Boolean.FALSE);
         // Initializations
         try {
             serverSock = new DatagramSocket(port);
@@ -220,16 +232,17 @@ public class Receiver {
                 Thread t1 = new Thread(recs, t);
                 t1.start();
             }
+            if (lastseq != 0) {
+                running = false;
+                for (int i = 0; i < lastseq; i++) {
+                    if (seqArray[i] == false) {
+                        running = true;
+                        break;
+                    }
+                }
+            }
         }
         Thread.sleep(1500);
-        // int act = recs.activeCount() * 2;
-        // Thread[] threads = new Thread[act];
-        // recs.enumerate(threads);
-        // for(int i = 0; i < act; i++) {
-        // Thread t = threads[i];
-        // if(t != null)
-        // t.join();
-        // }
         ByteArrayOutputStream payl = reconstructPayload();
 
         // if not file in command line args
